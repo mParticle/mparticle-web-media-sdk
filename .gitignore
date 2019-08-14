@@ -2,3 +2,5 @@ node_modules
 .rpt2_cache/
 .DS_Store
 .vscode/
+dist/
+test/reports

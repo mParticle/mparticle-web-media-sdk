@@ -1,0 +1,10 @@
+{
+    "name": "Web Media SDK",
+    "out": "dist/docs/",
+    "readme": "./TYPEDOCS_README.md",
+    "theme": "./node_modules/typedoc-default-themes/bin/mptheme",
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "mode": "file",
+    "exclude": ["src/utils.ts"]
+}
