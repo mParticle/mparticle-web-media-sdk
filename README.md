@@ -85,4 +85,4 @@ This package comes with the NPM package [pre-commit](https://www.npmjs.com/packa
 
 ## License
 
-The mParticle Javascript SDK is available under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See the LICENSE file for more info.
+The mParticle Web Media SDK is available under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See the LICENSE file for more info.
