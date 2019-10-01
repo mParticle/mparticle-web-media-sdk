@@ -2,7 +2,7 @@
 
 # mParticle Web Media SDK
 
-Hello! This is the public repo of the mParticle Web Media SDK. We've built the mParticle platform to take a new approach to web and mobile app data and the platform has grown to support 50+ services and SDKs, including developer tools, analytics, attribution, messaging, and advertising services. mParticle is designed to serve as the connector between all of these services - check out [our site](http://mparticle.com), or hit us at developers@mparticle.com to learn more.
+Hello! This is the public repo of the mParticle Web Media SDK. We've built the mParticle platform to take a new approach to web and mobile app data and the platform has grown to support 200+ services and SDKs, including developer tools, analytics, attribution, messaging, and advertising services. mParticle is designed to serve as the connector between all of these services - check out [our site](http://mparticle.com), or hit us at developers@mparticle.com to learn more.
 
 ## Documentation
 
@@ -59,9 +59,9 @@ mediaSession.logPlay();
 
 ```
 
-# Contibution Guidelines
+# Contribution Guidelines
 
-At mParticle, we are proud of our code and like to keep things open source. If you'd like to contribute, simply fork this repo, push any code changes to your fork, and submit a Pull Request against the `development` branch of mParticle-web-media-sdk.
+At mParticle, we are proud of our code and like to keep things open source. If you'd like to contribute, simply fork this repo, push any code changes to your fork, and submit a Pull Request against the `master` branch of mParticle-web-media-sdk.
 
 ## Running the Tests
 
