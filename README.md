@@ -18,7 +18,7 @@ Please be aware that this SDK is built as an extension of and requires the use o
 
 ## Include and Initialize the SDK
 
-Below summarizes the major steps to get the Web Media SDK up and running. 
+Below summarizes the major steps to get the Web Media SDK up and running.
 
 <!-- In addition to the below, we have built a sample app that provides a more in depth look at how to send Media Events to Adobe's Heartbeat Kit. See that [sample app here](https://github.com/mParticle/mparticle-media-samples) -->
 
@@ -44,6 +44,9 @@ const mParticleConfig = {
 // Register any media kits
 SampleMediaKit.register(mParticle.config)
 
+mParticle.init('REPLACE WITH API KEY', mParticleConfig);
+
+// Later in your code, when a user begins to engage with your content
 const mediaSession = new MediaSession(
     mParticle,                    // mParticle SDK Instance
     '1234567',                    // Custom media ID
@@ -53,9 +56,6 @@ const mediaSession = new MediaSession(
     'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
 )
 
-mParticle.init('REPLACE WITH API KEY', mParticleConfig);
-
-// Later in your code
 mediaSession.logMediaSessionStart();
 mediaSession.logPlay();
 
