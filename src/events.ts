@@ -4,39 +4,17 @@ import {
     MediaEventType,
     MessageType,
     AdContent,
+    EventAPIObject,
     Segment,
     AdBreak,
     QoS,
+    ModelAttributes,
+    EventType,
+    PageEventObject,
+    ValidMediaAttributeKeys,
 } from './types';
 
 import { getNameFromType, uuid } from './utils';
-
-/**
- * Server Representation of an Event
- */
-export type EventAPIObject = {
-    /**
-     *  The name of the event or a valid [[MessageType]]
-     */
-    EventName: string | number;
-    /**
-     * Corresponds to [[EventType]] in Core SDK
-     */
-    EventCategory: number;
-    /**
-     * Corresponds to [[MessageType]]
-     */
-    EventDataType: number;
-    /**
-     * A nested object of custom event attributes
-     */
-    EventAttributes?: { [key: string]: string };
-    /**
-     * @hidden
-     */
-    // tslint:disable-next-line: no-any
-    [key: string]: any;
-};
 
 /**
  * Represents a Base event for mParticle Core
@@ -46,12 +24,12 @@ export abstract class BaseEvent {
     /**
      *
      * @param name The name of the event
-     * @param type an Event Type that corresponds to [EventType](https://github.com/mParticle/mparticle-web-sdk/blob/master/src/types.js) in Core SDK
+     * @param eventType an Event Type that corresponds to [EventType](https://github.com/mParticle/mparticle-web-sdk/blob/master/src/types.js) in Core SDK
      * @param messageType A message type that corresponds to MessageType
      */
     constructor(
         public name: string,
-        public type: number,
+        public eventType: number,
         public messageType: MessageType
     ) {}
 
@@ -84,19 +62,208 @@ export class MediaEvent extends BaseEvent {
      * @param contentId Unique Identifier for the Media Content
      * @param duration Length of time for the Media Content
      * @param contentType Content Type. i.e. video vs audio
-     * @param streamType Stream Type i.e. live vs on demaind
+     * @param streamType Stream Type i.e. live vs on demand
+     * @param mediaSessionID Session ID from media Session
      * @returns An instance of a Media Event
      */
     constructor(
-        public type: MediaEventType,
+        public eventType: MediaEventType,
         public contentTitle: string,
         public contentId: string,
         public duration: number,
         readonly contentType: MediaContentType,
-        readonly streamType: MediaStreamType
+        readonly streamType: MediaStreamType,
+        readonly mediaSessionID: string
     ) {
-        super(getNameFromType(type), type, MessageType.Media);
+        super(getNameFromType(eventType), eventType, MessageType.Media);
     }
+
+    /**
+     * @hidden Returns session related event attributes
+     */
+    getSessionAttributes = () => {
+        const sessionAttributes: { [key: string]: string | number } = {
+            content_title: this.contentTitle,
+            content_duration: this.duration,
+            content_id: this.contentId,
+            content_type: MediaContentType[this.contentType],
+            stream_type: MediaStreamType[this.streamType],
+            media_session_id: this.mediaSessionID,
+        };
+
+        if (typeof this.playheadPosition === 'number') {
+            sessionAttributes[
+                ValidMediaAttributeKeys.playheadPosition
+            ] = this.playheadPosition;
+        }
+
+        return sessionAttributes;
+    };
+
+    /**
+     * @hidden Representation of the Media Event as a Custom Event
+     */
+    getEventAttributes = (): ModelAttributes => {
+        const eventAttributes: { [key: string]: string | number } = {};
+
+        if (this.seekPosition) {
+            eventAttributes[
+                ValidMediaAttributeKeys.seekPosition
+            ] = this.seekPosition;
+        }
+
+        if (this.bufferDuration) {
+            eventAttributes[
+                ValidMediaAttributeKeys.bufferDuration
+            ] = this.bufferDuration;
+        }
+
+        if (this.bufferPercent) {
+            eventAttributes[
+                ValidMediaAttributeKeys.bufferPercent
+            ] = this.bufferPercent;
+        }
+
+        if (this.bufferPosition) {
+            eventAttributes[
+                ValidMediaAttributeKeys.bufferPosition
+            ] = this.bufferPosition;
+        }
+
+        // QoS
+        if (this.qos) {
+            if (typeof this.qos.bitRate === 'number') {
+                eventAttributes[
+                    ValidMediaAttributeKeys.qosBitrate
+                ] = this.qos.bitRate;
+            }
+            if (typeof this.qos.fps === 'number') {
+                eventAttributes[
+                    ValidMediaAttributeKeys.qosFramesPerSecond
+                ] = this.qos.fps;
+            }
+            if (typeof this.qos.startupTime === 'number') {
+                eventAttributes[
+                    ValidMediaAttributeKeys.qosStartupTime
+                ] = this.qos.startupTime;
+            }
+            if (typeof this.qos.droppedFrames === 'number') {
+                eventAttributes[
+                    ValidMediaAttributeKeys.qosDroppedFrames
+                ] = this.qos.droppedFrames;
+            }
+        }
+
+        // Ad Content
+        if (this.adContent) {
+            if (this.adContent.title) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adTitle
+                ] = this.adContent.title;
+            }
+            if (this.adContent.id) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adId
+                ] = this.adContent.id;
+            }
+            if (this.adContent.advertiser) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adAdvertiserId
+                ] = this.adContent.advertiser;
+            }
+            if (this.adContent.siteid) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adSiteId
+                ] = this.adContent.siteid;
+            }
+            if (typeof this.adContent.placement === 'number') {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adPlacement
+                ] = this.adContent.placement;
+            }
+            if (this.adContent.duration) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adDuration
+                ] = this.adContent.duration;
+            }
+            if (this.adContent.creative) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adCreative
+                ] = this.adContent.creative;
+            }
+            if (this.adContent.campaign) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adCampaign
+                ] = this.adContent.campaign;
+            }
+        }
+
+        // Ad Break
+        if (this.adBreak) {
+            if (this.adBreak.id) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adBreakId
+                ] = this.adBreak.id;
+            }
+            if (this.adBreak.title) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adBreakTitle
+                ] = this.adBreak.title;
+            }
+            if (this.adBreak.duration) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adBreakDuration
+                ] = this.adBreak.duration;
+            }
+        }
+
+        // Segments
+        if (this.segment) {
+            if (this.segment.title) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.segmentTitle
+                ] = this.segment.title;
+            }
+
+            if (this.segment.index) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.segmentIndex
+                ] = this.segment.index;
+            }
+
+            if (this.segment.duration) {
+                eventAttributes[
+                    ValidMediaAttributeKeys.segmentDuration
+                ] = this.segment.duration;
+            }
+        }
+
+        return eventAttributes;
+    };
+
+    /**
+     * Returns a dictionary of attributes
+     * @returns Object
+     */
+    getAttributes = (): ModelAttributes => {
+        return {
+            ...this.getSessionAttributes(),
+            ...this.getEventAttributes(),
+        };
+    };
+
+    /**
+     * Representation of the Media Event as a Page Event for the core SDK
+     * @returns Object
+     */
+    toPageEvent = (): PageEventObject => {
+        return {
+            name: this.name,
+            eventType: EventType.Media,
+            messageType: MessageType.PageEvent,
+            data: this.getAttributes(),
+        };
+    };
 
     /**
      * @hidden Representation of the Media Event for the server model
@@ -105,7 +272,7 @@ export class MediaEvent extends BaseEvent {
         return {
             // Core Event Attributes
             EventName: this.name,
-            EventCategory: this.type,
+            EventCategory: this.eventType,
             EventDataType: this.messageType,
 
             AdContent: this.adContent,

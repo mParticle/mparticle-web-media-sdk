@@ -5,9 +5,332 @@ import {
     MediaContentType,
     MediaStreamType,
     MessageType,
+    EventType,
 } from '../src/types';
 
 describe('MediaEvent', () => {
+    describe('toPageEvent', () => {
+        it('returns a valid Media Content Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            mediaEvent.playheadPosition = 10;
+
+            const expectedObject = {
+                name: 'Play',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    playhead_position: 10,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+
+        it('returns a valid Seek Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.SeekStart,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            mediaEvent.seekPosition = 7;
+
+            const expectedObject = {
+                name: 'Seek Start',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    seek_position: 7,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+
+        it('returns a valid Buffer Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            mediaEvent.bufferDuration = 120;
+            mediaEvent.bufferPercent = 42;
+            mediaEvent.bufferPosition = 4;
+
+            const expectedObject = {
+                name: 'Play',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    buffer_duration: 120,
+                    buffer_percent: 42,
+                    buffer_position: 4,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+
+        it('returns a valid QoS Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.UpdateQoS,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            const qos = {
+                bitRate: 1,
+                fps: 24,
+                startupTime: 399,
+                droppedFrames: 98,
+            };
+
+            mediaEvent.qos = qos;
+
+            const expectedObject = {
+                name: 'Update QoS',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    qos_bitrate: 1,
+                    qos_fps: 24,
+                    qos_startup_time: 399,
+                    qos_dropped_frames: 98,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+        it('returns a valid Media Ad Break Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.AdBreakStart,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            const adBreak = {
+                id: '08123410',
+                title: 'mid-roll',
+                duration: 10000,
+            };
+
+            mediaEvent.adBreak = adBreak;
+
+            const expectedObject = {
+                name: 'Ad Break Start',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    ad_break_id: '08123410',
+                    ad_break_title: 'mid-roll',
+                    ad_break_duration: 10000,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+
+        it('returns a valid Media Ad Content Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.AdStart,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            const adContent = {
+                id: '1121220',
+                advertiser: 'Planet Express',
+                title: 'Good News Everbody!',
+                campaign: 'Omicron Persei 8 Dinner Tours',
+                duration: 60000,
+                creative: "We'll be happy to have you for dinner",
+                siteid: 'op8',
+                placement: 0,
+            };
+
+            mediaEvent.adContent = adContent;
+
+            const expectedObject = {
+                name: 'Ad Start',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    ad_content_id: '1121220',
+                    ad_content_advertiser: 'Planet Express',
+                    ad_content_title: 'Good News Everbody!',
+                    ad_content_campaign: 'Omicron Persei 8 Dinner Tours',
+                    ad_content_duration: 60000,
+                    ad_content_creative:
+                        "We'll be happy to have you for dinner",
+                    ad_content_site_id: 'op8',
+                    ad_content_placement: 0,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+
+        it('returns a valid Segment Object', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            const segment = {
+                title: 'The Gang Write Some Code',
+                index: 4,
+                duration: 36000,
+            };
+
+            mediaEvent.segment = segment;
+
+            const expectedObject = {
+                name: 'Play',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    segment_title: 'The Gang Write Some Code',
+                    segment_index: 4,
+                    segment_duration: 36000,
+                    media_session_id: '1234567890',
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
+    });
     describe('toEventAPIObject', () => {
         it('returns an EventAPIObject', () => {
             const song = {
@@ -24,7 +347,8 @@ describe('MediaEvent', () => {
                 song.contentId,
                 song.duration,
                 song.contentType,
-                song.streamType
+                song.streamType,
+                '1234567890'
             );
 
             mediaEvent.bufferDuration = 120;

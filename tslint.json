@@ -5,7 +5,14 @@
             "options": ["spaces", 4]
         },
         "interface-over-type-literal": false,
-        "no-default-export": false
+        "no-default-export": false,
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-pascal-case",
+            "allow-leading-underscore"
+        ]
     },
     "linterOptions": {
         "exclude": ["**/*.json"]

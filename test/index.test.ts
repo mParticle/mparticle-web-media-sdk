@@ -13,6 +13,7 @@ import {
     MpSDKInstance,
     Segment,
     QoS,
+    EventType,
 } from '../src/types';
 
 let sandbox: SinonSandbox;
@@ -50,6 +51,112 @@ describe('mParticle Media SDK', () => {
         sandbox.restore();
     });
 
+    describe('Media Event Listener', () => {
+        beforeEach(() => {
+            mpMedia.logPageEvent = false;
+            mpMedia.logMediaEvent = false;
+        });
+
+        it('should fire a callback', () => {
+            const bond = sinon.fake();
+
+            mpMedia.mediaEventListener = bond;
+            mpMedia.logPlay();
+            mpMedia.logPause();
+            mpMedia.logBufferStart(320, 20, 201);
+
+            expect(
+                bond.called,
+                'Expected Media Event Listener Callback to have beeen called'
+            ).to.eq(true);
+            expect(bond.callCount).to.eq(3);
+
+            expect(bond.args[0][0].name).to.eq('Play');
+            expect(bond.args[1][0].name).to.eq('Pause');
+            expect(bond.args[2][0].name).to.eq('Buffer Start');
+
+            bond.args.forEach(arg => {
+                expect(arg[0]).to.be.instanceOf(MediaEvent);
+            });
+        });
+
+        it('should log MP Events', () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            mpMedia.logPlay();
+
+            expect(
+                bond.called,
+                'Expected logBaseEvent to NOT have been called'
+            ).to.eq(false);
+
+            mpMedia.logPageEvent = true;
+            mpMedia.logPlay();
+
+            expect(
+                bond.called,
+                'Expected logBaseEvent to have been called'
+            ).to.eq(true);
+        });
+
+        it('should log Media Events', () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            mpMedia.logPlay();
+
+            expect(
+                bond.called,
+                'Expected logBaseEvent to NOT have been called'
+            ).to.eq(false);
+
+            mpMedia.logMediaEvent = true;
+            mpMedia.logPlay();
+
+            expect(
+                bond.called,
+                'Expected logBaseEvent to have been called'
+            ).to.eq(true);
+        });
+
+        it('should fire an mp as a flat event', () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            mpMedia.logPageEvent = true;
+            mpMedia.logMediaSessionStart();
+
+            const expectedObject = {
+                name: 'Media Session Start',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    media_session_id: mpMedia.sessionId,
+                },
+            };
+
+            expect(
+                bond.args[0][0],
+                'Expected Media event to be an MPEvent'
+            ).to.eqls(expectedObject);
+        });
+
+        it('should not fire update playhead position when logMpEvent is true', () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            mpMedia.logPageEvent = true;
+            mpMedia.logPlayheadPosition(116);
+
+            expect(
+                bond.called,
+                'Expected Media event NOT call Updated Playhead Position'
+            ).to.eq(false);
+        });
+    });
+
     describe('Functions', () => {
         describe('#logAdBreakStart', () => {
             it('should call core.logBaseEvent with a valid payload', () => {
@@ -68,7 +175,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Ad Break Start'"
                 ).to.eq(MediaEventType.AdBreakStart);
                 expect(
@@ -111,7 +218,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Ad Break End'"
                 ).to.eq(MediaEventType.AdBreakEnd);
                 expect(
@@ -160,7 +267,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Ad Start'"
                 ).to.eq(MediaEventType.AdStart);
                 expect(
@@ -214,7 +321,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Ad End'"
                 ).to.eq(MediaEventType.AdEnd);
                 expect(
@@ -270,7 +377,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Ad Skip'"
                 ).to.eq(MediaEventType.AdSkip);
                 expect(
@@ -324,7 +431,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Ad Click'"
                 ).to.eq(MediaEventType.AdClick);
                 expect(
@@ -349,7 +456,7 @@ describe('mParticle Media SDK', () => {
                 ).to.eq(true);
 
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Buffer Start'"
                 ).to.eq(MediaEventType.BufferStart);
                 expect(
@@ -373,7 +480,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Buffer End'"
                 ).to.eq(MediaEventType.BufferEnd);
                 expect(
@@ -397,7 +504,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Seek Start'"
                 ).to.eq(MediaEventType.SeekStart);
                 expect(
@@ -419,7 +526,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Seek End'"
                 ).to.eq(MediaEventType.SeekEnd);
                 expect(
@@ -441,7 +548,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Playhead Position'"
                 ).to.eq(MediaEventType.UpdatePlayheadPosition);
                 expect(
@@ -463,7 +570,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Media Start'"
                 ).to.eq(MediaEventType.SessionStart);
                 expect(
@@ -484,7 +591,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Media End'"
                 ).to.eq(MediaEventType.SessionEnd);
                 expect(
@@ -505,7 +612,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Play'"
                 ).to.eq(MediaEventType.Play);
                 expect(
@@ -526,7 +633,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Pause'"
                 ).to.eq(MediaEventType.Pause);
                 expect(
@@ -547,7 +654,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Media Content Start'"
                 ).to.eq(MediaEventType.MediaContentEnd);
                 expect(
@@ -574,7 +681,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Segment Start'"
                 ).to.eq(MediaEventType.SegmentStart);
                 expect(
@@ -618,7 +725,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Segment End'"
                 ).to.eq(MediaEventType.SegmentEnd);
                 expect(
@@ -663,7 +770,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'Segment Skip'"
                 ).to.eq(MediaEventType.SegmentSkip);
                 expect(
@@ -707,7 +814,7 @@ describe('mParticle Media SDK', () => {
                     'Expected logBaseEvent to have been called'
                 ).to.eq(true);
                 expect(
-                    bond.args[0][0].type,
+                    bond.args[0][0].eventType,
                     "Expected Event to be of type 'QoS'"
                 ).to.eq(MediaEventType.UpdateQoS);
                 expect(
@@ -718,6 +825,32 @@ describe('mParticle Media SDK', () => {
                     bond.args[0][0].qos,
                     'Expect to have a valid QoS object'
                 ).to.eql(qos);
+            });
+        });
+
+        describe('#createPageEvent', () => {
+            it('should trigger a custom event', () => {
+                const customEvent = mpMedia.createPageEvent('Milestone', {
+                    reached: '95%',
+                    integerValue: 201,
+                });
+
+                expect(customEvent).to.eql({
+                    name: 'Milestone',
+                    messageType: MessageType.PageEvent,
+                    eventType: EventType.Media,
+                    data: {
+                        content_title: 'Immigrant Song',
+                        content_id: '023134',
+                        content_duration: 120000,
+                        content_type: 'Video',
+                        stream_type: 'OnDemand',
+                        media_session_id: '', // Media Session ID is a blank uuid that gets set on Media Session Start
+                        playhead_position: 0,
+                        reached: '95%',
+                        integerValue: 201,
+                    },
+                });
             });
         });
     });

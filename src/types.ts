@@ -7,12 +7,18 @@ import { MediaEvent } from './events';
  * @hidden
  */
 export type MpSDKInstance = {
-    logBaseEvent(eventName: MediaEvent): void;
+    // tslint:disable-next-line: no-any
+    logBaseEvent(event: any): void;
     logger(message: string): void;
 };
 
 export enum MessageType {
+    PageEvent = 4,
     Media = 20,
+}
+
+export enum EventType {
+    Media = 9,
 }
 
 export enum MediaEventType {
@@ -37,6 +43,29 @@ export enum MediaEventType {
     SegmentSkip = 45,
     UpdateQoS = 46,
 }
+
+export const MediaEventName: { [key: string]: string } = {
+    Play: 'Play',
+    Pause: 'Pause',
+    MediaContentEnd: 'Media Content End',
+    SessionStart: 'Media Session Start',
+    SessionEnd: 'Media Session End',
+    SeekStart: 'Seek Start',
+    SeekEnd: 'Seek End',
+    BufferStart: 'Buffer Start',
+    BufferEnd: 'Buffer End',
+    UpdatePlayheadPosition: 'Update Playhead Position',
+    AdClick: 'Ad Click',
+    AdBreakStart: 'Ad Break Start',
+    AdBreakEnd: 'Ad Break End',
+    AdStart: 'Ad Start',
+    AdEnd: 'Ad End',
+    AdSkip: 'Ad Skip',
+    SegmentStart: 'Segment Start',
+    SegmentEnd: 'Segment End',
+    SegmentSkip: 'Segment Skip',
+    UpdateQoS: 'Update QoS',
+};
 
 /**
  * Represents a single Ad Break
@@ -95,13 +124,57 @@ export type AdContent = {
 };
 
 export enum MediaContentType {
-    Video,
-    Audio,
+    Video = 'Video',
+    Audio = 'Audio',
 }
 
 export enum MediaStreamType {
-    LiveStream,
-    OnDemand,
+    LiveStream = 'LiveStream',
+    OnDemand = 'OnDemand',
+}
+
+/**
+ * Page Event Representation
+ */
+export type PageEventObject = {
+    name: string;
+    eventType: number;
+    messageType: number;
+    data: ModelAttributes;
+};
+
+/**
+ * Server Representation of an Event
+ */
+export type EventAPIObject = {
+    /**
+     *  The name of the event or a valid [[MessageType]]
+     */
+    EventName: string | number;
+    /**
+     * Corresponds to [[EventType]] in Core SDK
+     */
+    EventCategory: number;
+    /**
+     * Corresponds to [[MessageType]]
+     */
+    EventDataType: number;
+    /**
+     * A nested object of custom event attributes
+     */
+    EventAttributes?: ModelAttributes;
+    /**
+     * @hidden
+     */
+    // tslint:disable-next-line: no-any
+    [key: string]: any;
+};
+
+/**
+ * Valid attributes for a Model
+ */
+export interface ModelAttributes {
+    [key: string]: string | number;
 }
 
 /**
@@ -109,6 +182,55 @@ export enum MediaStreamType {
  */
 export type MediaAttributes = {
     mediaContent?: MediaContent;
+};
+
+export const ValidMediaAttributeKeys: { [key: string]: string } = {
+    mediaSessionId: 'media_session_id',
+
+    playheadPosition: 'playhead_position',
+    id: 'id',
+
+    //MediaConent
+    contentTitle: 'content_title',
+    contentId: 'content_id',
+    duration: 'content_duration',
+    streamType: 'stream_type',
+    contentType: 'content_type',
+
+    //Seek
+    seekPosition: 'seek_position',
+
+    //Buffer
+    bufferDuration: 'buffer_duration',
+    bufferPercent: 'buffer_percent',
+    bufferPosition: 'buffer_position',
+
+    //QoS
+    qosBitrate: 'qos_bitrate',
+    qosFramesPerSecond: 'qos_fps',
+    qosStartupTime: 'qos_startup_time',
+    qosDroppedFrames: 'qos_dropped_frames',
+
+    //MediaAd
+    adTitle: 'ad_content_title',
+    adDuration: 'ad_content_duration',
+    adId: 'ad_content_id',
+    adAdvertiserId: 'ad_content_advertiser',
+    adCampaign: 'ad_content_campaign',
+    adCreative: 'ad_content_creative',
+    adPlacement: 'ad_content_placement',
+    adSiteId: 'ad_content_site_id',
+
+    //MediaAdBreak
+    adBreakTitle: 'ad_break_title',
+    adBreakDuration: 'ad_break_duration',
+    adBreakPlaybackTime: 'ad_break_playback_time',
+    adBreakId: 'ad_break_id',
+
+    //Segment
+    segmentTitle: 'segment_title',
+    segmentIndex: 'segment_index',
+    segmentDuration: 'segment_duration',
 };
 
 /**
@@ -175,4 +297,11 @@ export type Segment = {
      * Length of time of the segment
      */
     duration: number;
+};
+
+/**
+ * A callback function with a [[MediaEvent]]
+ */
+export type MediaEventCallback = {
+    (event: MediaEvent): void;
 };

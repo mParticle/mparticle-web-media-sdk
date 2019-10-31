@@ -1,13 +1,18 @@
-import { BaseEvent, MediaEvent } from './events';
+import { MediaEvent } from './events';
 import {
     AdBreak,
     AdContent,
     MediaContentType,
     MediaStreamType,
     Segment,
+    MediaEventCallback,
     MediaEventType,
     MpSDKInstance,
     QoS,
+    EventType,
+    MessageType,
+    ModelAttributes,
+    PageEventObject,
 } from './types';
 
 import { uuid } from './utils';
@@ -20,10 +25,12 @@ export default class MediaSession {
     adContent?: AdContent;
     segment?: Segment;
 
-    private sessionID = '';
-    private droppedFrames = 0;
+    get sessionId() {
+        return this._sessionId;
+    }
+    private _sessionId = '';
+
     private currentPlayheadPosition = 0;
-    private currentFramesPerSecond = 0;
 
     /**
      * Initializes the Media Session object. This does not start a session, you can do so by calling `logMediaSessionStart`.
@@ -33,6 +40,8 @@ export default class MediaSession {
      * @param duration The length of time for the complete media content (not including ads or breaks)
      * @param contentType A descriptor for the type of content, i.e. Audio or Video
      * @param streamType A descriptor for the type of stream, i.e. live or on demand
+     * @param logPageEvent A flag that toggles sending mParticle Events to Core SDK
+     * @param logMediaEvent A flag that toggles sending Media Events to Core SDK
      */
     constructor(
         readonly mparticleInstance: MpSDKInstance,
@@ -40,16 +49,59 @@ export default class MediaSession {
         readonly title: string,
         public duration: number,
         readonly contentType: MediaContentType,
-        readonly streamType: MediaStreamType
+        readonly streamType: MediaStreamType,
+        public logPageEvent = false,
+        public logMediaEvent = true
     ) {}
 
     /**
-     * Logs number of frames that have been dropped by the player
-     * @param dropped Number of frames dropped
-     * @category Quality of Service
+     * Creates a base Media Event
+     * @param eventType
      */
-    logDroppedFrames(dropped: number) {
-        this.droppedFrames += dropped;
+    private createMediaEvent(eventType: MediaEventType): MediaEvent {
+        return new MediaEvent(
+            eventType,
+            this.title,
+            this.contentId,
+            this.duration,
+            this.contentType,
+            this.streamType,
+            this.sessionId
+        );
+    }
+
+    /**
+     * Sends MediaEvent to CoreSDK depending on if [logMediaEvent] or [logPageEvent] are set
+     * @param event MediaEvent
+     */
+    private logEvent(event: MediaEvent) {
+        this.mediaEventListener(event);
+
+        if (this.logMediaEvent) {
+            this.mparticleInstance.logBaseEvent(event);
+        }
+
+        if (this.logPageEvent) {
+            if (event.eventType !== MediaEventType.UpdatePlayheadPosition) {
+                const mpEvent = event.toPageEvent();
+                this.mparticleInstance.logBaseEvent(mpEvent);
+            }
+        }
+    }
+
+    /**
+     * Returns session attributes as a flat object
+     */
+    getAttributes(): ModelAttributes {
+        return {
+            content_title: this.title,
+            content_duration: this.duration,
+            content_id: this.contentId,
+            content_type: MediaContentType[this.contentType],
+            stream_type: MediaStreamType[this.streamType],
+            playhead_position: this.currentPlayheadPosition,
+            media_session_id: this.sessionId,
+        };
     }
 
     /**
@@ -57,18 +109,10 @@ export default class MediaSession {
      * @category Media
      */
     logMediaSessionStart() {
-        this.sessionID = uuid();
+        this._sessionId = uuid();
+        const event = this.createMediaEvent(MediaEventType.SessionStart);
 
-        const event = new MediaEvent(
-            MediaEventType.SessionStart,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
-
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -76,16 +120,9 @@ export default class MediaSession {
      * @category Media
      */
     logMediaSessionEnd() {
-        const event = new MediaEvent(
-            MediaEventType.SessionEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.SessionEnd);
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -94,16 +131,9 @@ export default class MediaSession {
      * @category Media
      */
     logMediaContentEnd() {
-        const event = new MediaEvent(
-            MediaEventType.MediaContentEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.MediaContentEnd);
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -114,18 +144,11 @@ export default class MediaSession {
     logAdBreakStart(adBreakContent: AdBreak) {
         this.adBreak = adBreakContent;
 
-        const event = new MediaEvent(
-            MediaEventType.AdBreakStart,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.AdBreakStart);
 
         event.adBreak = adBreakContent;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -133,17 +156,10 @@ export default class MediaSession {
      * @category Advertising
      */
     logAdBreakEnd() {
-        const event = new MediaEvent(
-            MediaEventType.AdBreakEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.AdBreakEnd);
         event.adBreak = this.adBreak;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
         this.adBreak = undefined;
     }
 
@@ -155,17 +171,10 @@ export default class MediaSession {
     logAdStart(adContent: AdContent) {
         this.adContent = adContent;
 
-        const event = new MediaEvent(
-            MediaEventType.AdStart,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.AdStart);
         event.adContent = adContent;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -173,17 +182,10 @@ export default class MediaSession {
      * @category Advertising
      */
     logAdEnd() {
-        const event = new MediaEvent(
-            MediaEventType.AdEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.AdEnd);
         event.adContent = this.adContent;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
         this.adContent = undefined;
     }
 
@@ -192,17 +194,10 @@ export default class MediaSession {
      * @category Advertising
      */
     logAdSkip() {
-        const event = new MediaEvent(
-            MediaEventType.AdSkip,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.AdSkip);
         event.adContent = this.adContent;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
         this.adContent = undefined;
     }
 
@@ -212,17 +207,10 @@ export default class MediaSession {
      */
     logAdClick(adContent: AdContent) {
         this.adContent = adContent;
-        const event = new MediaEvent(
-            MediaEventType.AdClick,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.AdClick);
         event.adContent = this.adContent;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -237,20 +225,13 @@ export default class MediaSession {
         bufferPercent: number,
         bufferPosition: number
     ) {
-        const event = new MediaEvent(
-            MediaEventType.BufferStart,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.BufferStart);
 
         event.bufferDuration = bufferDuration;
         event.bufferPercent = bufferPercent;
         event.bufferPosition = bufferPosition;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -265,20 +246,13 @@ export default class MediaSession {
         bufferPercent: number,
         bufferPosition: number
     ) {
-        const event = new MediaEvent(
-            MediaEventType.BufferEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.BufferEnd);
 
         event.bufferDuration = bufferDuration;
         event.bufferPercent = bufferPercent;
         event.bufferPosition = bufferPosition;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -286,15 +260,8 @@ export default class MediaSession {
      * @category Media
      */
     logPlay() {
-        const event = new MediaEvent(
-            MediaEventType.Play,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
-        this.mparticleInstance.logBaseEvent(event);
+        const event = this.createMediaEvent(MediaEventType.Play);
+        this.logEvent(event);
     }
 
     /**
@@ -302,15 +269,8 @@ export default class MediaSession {
      * @category Media
      */
     logPause() {
-        const event = new MediaEvent(
-            MediaEventType.Pause,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
-        this.mparticleInstance.logBaseEvent(event);
+        const event = this.createMediaEvent(MediaEventType.Pause);
+        this.logEvent(event);
     }
 
     /**
@@ -319,18 +279,11 @@ export default class MediaSession {
      * @category Media
      */
     logSegmentStart(segment: Segment) {
-        const event = new MediaEvent(
-            MediaEventType.SegmentStart,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.SegmentStart);
 
         event.segment = segment;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
         this.segment = segment;
     }
 
@@ -339,17 +292,10 @@ export default class MediaSession {
      * @category Media
      */
     logSegmentEnd() {
-        const event = new MediaEvent(
-            MediaEventType.SegmentEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.SegmentEnd);
         event.segment = this.segment;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
         this.segment = undefined;
     }
 
@@ -358,16 +304,9 @@ export default class MediaSession {
      * @category Media
      */
     logSegmentSkip() {
-        const event = new MediaEvent(
-            MediaEventType.SegmentSkip,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.SegmentSkip);
         event.segment = this.segment;
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
         this.segment = undefined;
     }
 
@@ -377,18 +316,11 @@ export default class MediaSession {
      * @category Media
      */
     logSeekStart(seekPosition: number) {
-        const event = new MediaEvent(
-            MediaEventType.SeekStart,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.SeekStart);
 
         event.seekPosition = seekPosition;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -397,18 +329,11 @@ export default class MediaSession {
      * @category Media
      */
     logSeekEnd(seekPosition: number) {
-        const event = new MediaEvent(
-            MediaEventType.SeekEnd,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.SeekEnd);
 
         event.seekPosition = seekPosition;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -418,18 +343,13 @@ export default class MediaSession {
      */
     logPlayheadPosition(playheadPosition: number) {
         this.currentPlayheadPosition = playheadPosition;
-        const event = new MediaEvent(
-            MediaEventType.UpdatePlayheadPosition,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
+        const event = this.createMediaEvent(
+            MediaEventType.UpdatePlayheadPosition
         );
 
         event.playheadPosition = playheadPosition;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
 
     /**
@@ -438,16 +358,72 @@ export default class MediaSession {
      * @category Quality of Service
      */
     logQoS(qos: QoS) {
-        const event = new MediaEvent(
-            MediaEventType.UpdateQoS,
-            this.title,
-            this.contentId,
-            this.duration,
-            this.contentType,
-            this.streamType
-        );
+        const event = this.createMediaEvent(MediaEventType.UpdateQoS);
         event.qos = qos;
 
-        this.mparticleInstance.logBaseEvent(event);
+        this.logEvent(event);
     }
+
+    /**
+     * returns a Custom Page Event
+     * @param eventName The name of your custom event
+     * @param attributes An Attribute Key/Value pair
+     */
+    createPageEvent(
+        eventName: string,
+        attributes: { [key: string]: string | number }
+    ): PageEventObject {
+        return {
+            name: eventName,
+            eventType: EventType.Media,
+            messageType: MessageType.PageEvent,
+            data: {
+                ...this.getAttributes(),
+                ...attributes,
+            },
+        };
+    }
+
+    /**
+     * Subscribes your Media Session to an array of [[MediaEventType]] and fires a
+     * callback when they are triggered
+     *
+     * ```typescript
+     * const mediaSession = new MediaSession(
+     *     mParticle,
+     *     title = "Media Title"
+     *     mediaContentId = "123"
+     *     duration = 1000
+     *     streamType = StreamType.LiveStream
+     *     contentType = ContentType.Video
+     *
+     *     logPageEvents = false              //optional, defaults to false anyway
+     *     logMediaEvents = false
+     * );
+     *
+     * const myCallback = (event: MediaEvent): void => {
+     *     // Some custom callback method defined by user
+     *     // Should only trigger when play or pause is fired
+     *     if (
+     *         event.type == MediaEventType.Play ||
+     *         event.type == MediaEventType.Pause
+     *     ) {
+     *         const mpEvent = mediaEvent.toPageEvent();
+     *         mParticle.getInstance().logEvent(mpEvent);
+     *     }
+     * }
+     *
+     * mediaSession.mediaEventListener(myCallback);
+     *
+     * ```
+     * @param eventTypes An Array of MediaEventTypes that are being subscribed to
+     * @param callback A callback function
+     */
+    get mediaEventListener(): MediaEventCallback {
+        return this.listenerCallback;
+    }
+    set mediaEventListener(callback: MediaEventCallback) {
+        this.listenerCallback = callback;
+    }
+    private listenerCallback: MediaEventCallback = () => {};
 }
