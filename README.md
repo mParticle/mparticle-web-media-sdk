@@ -54,11 +54,54 @@ const mediaSession = new MediaSession(
     120000,                       // Duration in milliseconds
     'Video',                      // Content Type (Video or Audio)
     'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
+    true,                         // Log Page Event Toggle (true/false)
+    true,                         // Log Media Event Toggle (true/false)
 )
 
 mediaSession.logMediaSessionStart();
 mediaSession.logPlay();
 
+```
+
+## Logging Custom Events
+
+Depending on your use case or player's events, there might be a need to log an event which the Media SDK does not currently support. In these cases, please use the `createPageEvent` method to trigger a custom event via the Core SDK.
+
+For example,
+
+```javascript
+const customMPEvent = MediaSession.createPageEvent('My Custom Event', {
+    // Attributes are optional
+    'custom-property': 'custom-value',
+});
+
+mParticle.logEvent(customMPEvent);
+```
+
+## Using the Event Listener
+
+In cases where you may need to handle some custom functionality when a media event occurs, the Media SDK provides a `mediaEventListener` which will provide a callback.
+
+For example, if you need to trigger a custom function when Play or Pause
+occurs:
+
+```javascript
+const myCallback = function(event) {
+    // Some custom callback method defined by user
+    // Should only trigger when play or pause is fired
+    if (
+        event.type == MediaEventType.Play ||
+        event.type == MediaEventType.Pause
+    ) {
+        // Get the Media Event as an mParticle Page Event
+        const mpEvent = mediaEvent.toPageEvent();
+
+        // Pass to your own custom function
+        myCustomFunction(mpEvent);
+    }
+};
+
+mediaSession.mediaEventListener(myCallback);
 ```
 
 # Contribution Guidelines

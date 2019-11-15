@@ -365,6 +365,20 @@ export default class MediaSession {
     }
 
     /**
+     * Creates a Custom Page Event which can then be passed into
+     * Core SDK as an event
+     *
+     * ```typescript
+     * const customMPEvent = MediaSession.createPageEvent(
+     *     'My Custom Event',
+     * .   {
+     *        "custom-property": "custom-value"
+     *     }
+     * );
+     *
+     * mParticle.logEvent(customMPEvent);
+     * ```
+     *
      * returns a Custom Page Event
      * @param eventName The name of your custom event
      * @param attributes An Attribute Key/Value pair
