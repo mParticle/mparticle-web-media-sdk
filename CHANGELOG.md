@@ -1,6 +1,11 @@
 ## Releases
 
+#### 1.1.1 - 2019-11-15
+
+-   Update README and Comments with examples for Custom Events and Event Listener
+
 #### 1.1.0 - 2019-10-31
+
 -   Allow Media Events to be Sent as Custom Events
 -   Add mediaEventListener to allow for listening in on event triggers
 -   Happy Halloween! :jack_o_lantern: :jack_o_lantern: :japanese_goblin:
