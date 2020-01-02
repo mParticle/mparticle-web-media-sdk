@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.2.1 - 2019-01-02
+
+-   Replace bundled mparticle-media.common.js
+
 #### 1.2.0 - 2019-01-02
 
 -   Add support for optional parameters in MediaSession Log Methods
