@@ -1,5 +1,12 @@
 ## Releases
 
+#### 1.2.0 - 2019-01-02
+
+-   Add support for optional parameters in MediaSession Log Methods
+-   Add custom attributes to MediaSession and MediaEvent
+-   Add currentPlayheadPosition to optional parameters in MediaSession and MediaEvent
+-   Resolve issue with QoS state
+
 #### 1.1.1 - 2019-11-15
 
 -   Update README and Comments with examples for Custom Events and Event Listener
