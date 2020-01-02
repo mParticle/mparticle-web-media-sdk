@@ -1238,7 +1238,12 @@ describe('mParticle Media SDK', () => {
                     droppedFrames: 3,
                 };
 
-                mpMedia.logQoS(qos);
+                mpMedia.logQoS({
+                    startupTime: qos.startupTime,
+                    fps: qos.fps,
+                    bitRate: qos.bitRate,
+                    droppedFrames: qos.droppedFrames,
+                });
 
                 expect(
                     bond.called,
@@ -1258,6 +1263,41 @@ describe('mParticle Media SDK', () => {
                 ).to.eql(qos);
             });
 
+            it("should update the session's QoS object", () => {
+                const qos: QoS = {
+                    startupTime: 201,
+                    fps: 42,
+                    bitRate: 2,
+                    droppedFrames: 3,
+                };
+                mpMedia.logQoS({
+                    startupTime: qos.startupTime,
+                });
+
+                mpMedia.logQoS({
+                    fps: qos.fps,
+                });
+
+                mpMedia.logQoS({
+                    bitRate: qos.bitRate,
+                });
+
+                mpMedia.logQoS({
+                    droppedFrames: qos.droppedFrames,
+                });
+
+                const {
+                    qos_fps,
+                    qos_startup_time,
+                    qos_bitrate,
+                    qos_dropped_frames,
+                } = mpMedia.getQoSAttributes();
+
+                expect(qos_startup_time).to.eq(qos.startupTime);
+                expect(qos_fps).to.eq(qos.fps);
+                expect(qos_bitrate).to.eq(qos.bitRate);
+                expect(qos_dropped_frames).to.eq(qos.droppedFrames);
+            });
             it('accepts optional parameters', () => {
                 const bond = sinon.spy(mp, 'logBaseEvent');
 
@@ -1267,7 +1307,6 @@ describe('mParticle Media SDK', () => {
                     bitRate: 2,
                     droppedFrames: 3,
                 };
-
                 const options = {
                     currentPlayheadPosition: 42,
                     customAttributes: {

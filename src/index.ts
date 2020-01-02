@@ -78,6 +78,14 @@ export default class MediaSession {
     private _sessionId = '';
 
     private currentPlayheadPosition = 0;
+
+    private currentQoS: QoS = {
+        startupTime: 0,
+        fps: 0,
+        bitRate: 0,
+        droppedFrames: 0,
+    };
+
     private customAttributes: ModelAttributes = {};
 
     /**
@@ -151,6 +159,29 @@ export default class MediaSession {
                 this.mparticleInstance.logBaseEvent(mpEvent);
             }
         }
+    }
+
+    /**
+     * Returns QoS attributes as a flat object
+     */
+    getQoSAttributes() {
+        const result: ModelAttributes = {};
+        if (this.currentQoS.bitRate) {
+            result.qos_bitrate = this.currentQoS.bitRate;
+        }
+
+        if (this.currentQoS.startupTime) {
+            result.qos_startup_time = this.currentQoS.startupTime;
+        }
+
+        if (this.currentQoS.fps) {
+            result.qos_fps = this.currentQoS.fps;
+        }
+
+        if (this.currentQoS.droppedFrames) {
+            result.qos_dropped_frames = this.currentQoS.droppedFrames;
+        }
+        return result;
     }
 
     /**
@@ -461,8 +492,10 @@ export default class MediaSession {
      * @category Quality of Service
      */
     logQoS(qos: QoS, options?: Options) {
+        this.currentQoS = { ...this.currentQoS, ...qos };
         const event = this.createMediaEvent(MediaEventType.UpdateQoS, options);
-        event.qos = qos;
+
+        event.qos = { ...this.currentQoS };
 
         this.logEvent(event);
     }
@@ -496,6 +529,7 @@ export default class MediaSession {
             messageType: MessageType.PageEvent,
             data: {
                 ...this.getAttributes(),
+                ...this.getQoSAttributes(),
                 ...attributes,
             },
         };
