@@ -134,6 +134,7 @@ describe('mParticle Media SDK', () => {
                     content_duration: 120000,
                     content_type: 'Video',
                     stream_type: 'OnDemand',
+                    playhead_position: 0,
                     media_session_id: mpMedia.sessionId,
                 },
             };
@@ -154,6 +155,43 @@ describe('mParticle Media SDK', () => {
                 bond.called,
                 'Expected Media event NOT call Updated Playhead Position'
             ).to.eq(false);
+        });
+    });
+
+    describe('Properties', () => {
+        describe('currentPlayheadPosition', () => {
+            it('should update via custom attributes', () => {
+                expect(mpMedia.getAttributes().playhead_position).equal(0);
+                mpMedia.logPlay({ currentPlayheadPosition: 42 });
+                expect(mpMedia.getAttributes().playhead_position).equal(42);
+            });
+
+            it('should maintain playhead position for every log method', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+                expect(mpMedia.getAttributes().playhead_position).equal(0);
+                mpMedia.logPlayheadPosition(60);
+
+                expect(mpMedia.getAttributes().playhead_position).equal(60);
+                expect(
+                    bond.args[0][0].playheadPosition,
+                    'Logging playhead position should persist'
+                ).equal(60);
+
+                mpMedia.logPlay({ currentPlayheadPosition: 97 });
+
+                expect(mpMedia.getAttributes().playhead_position).equal(97);
+                expect(
+                    bond.args[1][0].playheadPosition,
+                    'Passing playhead position as option should persist'
+                ).equal(97);
+
+                mpMedia.logPause();
+                expect(mpMedia.getAttributes().playhead_position).equal(97);
+                expect(
+                    bond.args[2][0].playheadPosition,
+                    'Playhead position from session should persist'
+                ).equal(97);
+            });
         });
     });
 
@@ -197,6 +235,36 @@ describe('mParticle Media SDK', () => {
 
                 mpMedia.logAdBreakStart(adBreak);
                 expect(mpMedia.adBreak).to.exist.and.eq(adBreak);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const adBreak: AdBreak = {
+                    id: '08123410',
+                    title: 'mid-roll',
+                    duration: 10000,
+                };
+
+                const options = {
+                    customAttributes: {
+                        content_rating: 'epic',
+                        additional: {
+                            attribute: 'foo',
+                        },
+                    },
+                    currentPlayheadPosition: 32,
+                };
+
+                mpMedia.logAdBreakStart(adBreak, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -242,6 +310,26 @@ describe('mParticle Media SDK', () => {
                 mpMedia.logAdBreakEnd();
 
                 expect(mpMedia.adBreak).to.eq(undefined);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logAdBreakEnd(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -295,6 +383,37 @@ describe('mParticle Media SDK', () => {
                 mpMedia.logAdStart(adContent);
 
                 expect(mpMedia.adContent).to.exist.and.eq(adContent);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const adContent: AdContent = {
+                    id: '1121220',
+                    advertiser: 'Planet Express',
+                    title: 'Good News Everbody!',
+                    campaign: 'Omicron Persei 8 Dinner Tours',
+                    duration: 60000,
+                    creative: "We'll be happy to have you for dinner",
+                    siteid: 'op8',
+                    placement: 0,
+                };
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logAdStart(adContent, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -352,6 +471,26 @@ describe('mParticle Media SDK', () => {
 
                 expect(mpMedia.adContent).to.eq(undefined);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logAdEnd(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logAdSkip', () => {
@@ -407,6 +546,26 @@ describe('mParticle Media SDK', () => {
 
                 expect(mpMedia.adContent).to.eq(undefined);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logAdSkip(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logAdClick', () => {
@@ -443,6 +602,37 @@ describe('mParticle Media SDK', () => {
                     'Expected to have a valid Ad Content Payload'
                 ).to.eql(adContent);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const adContent: AdContent = {
+                    id: '1121220',
+                    advertiser: 'Planet Express',
+                    title: 'Good News Everbody!',
+                    campaign: 'Omicron Persei 8 Dinner Tours',
+                    duration: 60000,
+                    creative: "We'll be happy to have you for dinner",
+                    siteid: 'op8',
+                    placement: 0,
+                };
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logAdClick(adContent, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logBufferStart', () => {
@@ -466,6 +656,26 @@ describe('mParticle Media SDK', () => {
                 expect(bond.args[0][0].bufferDuration).to.eq(320);
                 expect(bond.args[0][0].bufferPercent).to.eq(20);
                 expect(bond.args[0][0].bufferPosition).to.eq(201);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logBufferStart(320, 20, 201, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -491,6 +701,26 @@ describe('mParticle Media SDK', () => {
                 expect(bond.args[0][0].bufferPercent).to.eq(2);
                 expect(bond.args[0][0].bufferPosition).to.eq(341);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logBufferEnd(99, 2, 341, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logSeekStart', () => {
@@ -513,6 +743,26 @@ describe('mParticle Media SDK', () => {
                 ).to.eq(MessageType.Media);
                 expect(bond.args[0][0].seekPosition).to.eq(421);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logSeekStart(341, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logSeekEnd', () => {
@@ -534,6 +784,26 @@ describe('mParticle Media SDK', () => {
                     "Expected Event to have a messageType of 'Media'"
                 ).to.eq(MessageType.Media);
                 expect(bond.args[0][0].seekPosition).to.eq(999);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logSeekEnd(111, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -578,6 +848,26 @@ describe('mParticle Media SDK', () => {
                     "Expected Event to have a messageType of 'Media'"
                 ).to.eq(MessageType.Media);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logMediaSessionStart(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#LogMediaEnd', () => {
@@ -598,6 +888,26 @@ describe('mParticle Media SDK', () => {
                     bond.args[0][0].messageType,
                     "Expected Event to have a messageType of 'Media'"
                 ).to.eq(MessageType.Media);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logMediaSessionEnd(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -620,6 +930,25 @@ describe('mParticle Media SDK', () => {
                     "Expected Event to have a messageType of 'Media'"
                 ).to.eq(MessageType.Media);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+                mpMedia.logPlay(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logPause', () => {
@@ -641,6 +970,25 @@ describe('mParticle Media SDK', () => {
                     "Expected Event to have a messageType of 'Media'"
                 ).to.eq(MessageType.Media);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+                mpMedia.logPause(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logMediaContentEnd', () => {
@@ -661,6 +1009,25 @@ describe('mParticle Media SDK', () => {
                     bond.args[0][0].messageType,
                     "Expected Event to have a messageType of 'Media'"
                 ).to.eq(MessageType.Media);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+                mpMedia.logMediaContentEnd(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -704,6 +1071,31 @@ describe('mParticle Media SDK', () => {
                 mpMedia.logSegmentStart(segment);
 
                 expect(mpMedia.segment).to.exist.and.eq(segment);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const segment: Segment = {
+                    title: 'The Gang Write Some Code',
+                    index: 4,
+                    duration: 36000,
+                };
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+                mpMedia.logSegmentStart(segment, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
             });
         });
 
@@ -750,6 +1142,26 @@ describe('mParticle Media SDK', () => {
 
                 expect(mpMedia.segment).to.eq(undefined);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logSegmentEnd(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
 
         describe('#logSegmentSkip', () => {
@@ -795,6 +1207,25 @@ describe('mParticle Media SDK', () => {
 
                 expect(mpMedia.segment).to.eq(undefined);
             });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const options = {
+                    currentPlayheadPosition: 32,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+                mpMedia.logSegmentSkip(options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    32
+                );
+            });
         });
         describe('#logQoS', () => {
             it('should call core.logBaseEvent with a valid payload', () => {
@@ -825,6 +1256,34 @@ describe('mParticle Media SDK', () => {
                     bond.args[0][0].qos,
                     'Expect to have a valid QoS object'
                 ).to.eql(qos);
+            });
+
+            it('accepts optional parameters', () => {
+                const bond = sinon.spy(mp, 'logBaseEvent');
+
+                const qos: QoS = {
+                    startupTime: 201,
+                    fps: 42,
+                    bitRate: 2,
+                    droppedFrames: 3,
+                };
+
+                const options = {
+                    currentPlayheadPosition: 42,
+                    customAttributes: {
+                        content_rating: 'epic',
+                    },
+                };
+
+                mpMedia.logQoS(qos, options);
+
+                expect(bond.args[0][0].options.customAttributes).to.eq(
+                    options.customAttributes
+                );
+
+                expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
+                    options.currentPlayheadPosition
+                );
             });
         });
 

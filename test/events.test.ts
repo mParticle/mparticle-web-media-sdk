@@ -9,6 +9,112 @@ import {
 } from '../src/types';
 
 describe('MediaEvent', () => {
+    describe('#constructor', () => {
+        it('populates default values', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890'
+            );
+
+            expect(mediaEvent.toPageEvent()).to.eql({
+                data: {
+                    content_duration: 120000,
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_type: 'Video',
+                    media_session_id: '1234567890',
+                    stream_type: 'OnDemand',
+                },
+                eventType: 9,
+                messageType: 4,
+                name: 'Play',
+            });
+        });
+
+        it('populates with optional values', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const options = {
+                currentPlayheadPosition: 42,
+                customAttributes: {
+                    something: 'epic',
+                },
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890',
+                options
+            );
+
+            expect(mediaEvent.toPageEvent()).to.eql({
+                data: {
+                    content_duration: 120000,
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_type: 'Video',
+                    media_session_id: '1234567890',
+                    stream_type: 'OnDemand',
+                    playhead_position: 42,
+                    something: 'epic',
+                },
+                eventType: 9,
+                messageType: 4,
+                name: 'Play',
+            });
+        });
+
+        it('populates playheadPosition through customAttributes', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const options = {
+                currentPlayheadPosition: 42,
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890',
+                options
+            );
+
+            expect(mediaEvent.playheadPosition).to.eq(42);
+        });
+    });
     describe('toPageEvent', () => {
         it('returns a valid Media Content Object', () => {
             const song = {
@@ -330,6 +436,54 @@ describe('MediaEvent', () => {
 
             expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
         });
+
+        it('supports customAttributes', () => {
+            const song = {
+                contentId: '023134',
+                title: 'Immigrant Song',
+                duration: 120000,
+                contentType: MediaContentType.Video,
+                streamType: MediaStreamType.OnDemand,
+            };
+
+            const options = {
+                currentPlayheadPosition: 23,
+                customAttributes: {
+                    content_genre: 'prog rock',
+                    content_release: '1970',
+                },
+            };
+
+            const mediaEvent = new MediaEvent(
+                MediaEventType.Play,
+                song.title,
+                song.contentId,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                '1234567890',
+                options
+            );
+
+            const expectedObject = {
+                name: 'Play',
+                messageType: MessageType.PageEvent,
+                eventType: EventType.Media,
+                data: {
+                    content_id: '023134',
+                    content_title: 'Immigrant Song',
+                    content_duration: 120000,
+                    content_type: 'Video',
+                    stream_type: 'OnDemand',
+                    media_session_id: '1234567890',
+                    content_genre: 'prog rock',
+                    content_release: '1970',
+                    playhead_position: 23,
+                },
+            };
+
+            expect(mediaEvent.toPageEvent()).to.eql(expectedObject);
+        });
     });
     describe('toEventAPIObject', () => {
         it('returns an EventAPIObject', () => {
@@ -341,6 +495,14 @@ describe('MediaEvent', () => {
                 streamType: MediaStreamType.OnDemand,
             };
 
+            const options = {
+                currentPlayheadPosition: 23,
+                customAttributes: {
+                    content_genre: 'prog rock',
+                    content_release: '1970',
+                },
+            };
+
             const mediaEvent = new MediaEvent(
                 MediaEventType.Play,
                 song.title,
@@ -348,13 +510,13 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
+                options
             );
 
             mediaEvent.bufferDuration = 120;
             mediaEvent.bufferPercent = 42;
             mediaEvent.bufferPosition = 4;
-            mediaEvent.playheadPosition = 32;
             mediaEvent.seekPosition = 39;
 
             mediaEvent.adBreak = {
@@ -401,7 +563,12 @@ describe('MediaEvent', () => {
                 ContentTitle: 'Immigrant Song',
                 StreamType: 'OnDemand',
                 SeekPosition: 39,
-                PlayheadPosition: 32,
+                PlayheadPosition: 23,
+
+                EventAttributes: {
+                    content_genre: 'prog rock',
+                    content_release: '1970',
+                },
 
                 AdBreak: {
                     id: '08123410',

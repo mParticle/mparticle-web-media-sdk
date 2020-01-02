@@ -178,6 +178,15 @@ export interface ModelAttributes {
 }
 
 /**
+ * Valid attributes for Options
+ */
+export interface Options {
+    currentPlayheadPosition?: number;
+    // tslint:disable-next-line: no-any
+    customAttributes?: Record<string, any>;
+}
+
+/**
  * Valid attributes for Media Content
  */
 export type MediaAttributes = {

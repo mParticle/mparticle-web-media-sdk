@@ -13,12 +13,59 @@ import {
     MessageType,
     ModelAttributes,
     PageEventObject,
+    Options,
 } from './types';
 
 import { uuid } from './utils';
 
 /**
  * The MediaSession class is the primary class that will be used to engage with the mParticle Media SDK.
+ *
+ * # Usage
+ * ## MediaSession Instance
+ *
+ * ```javascript
+ * const mediaSession = new MediaSession(
+ *   mParticle,                    // mParticle SDK Instance
+ *   '1234567',                    // Custom media ID
+ *   'Funny Internet cat video',   // Custom media Title
+ *   120000,                       // Duration in milliseconds
+ *   'Video',                      // Content Type (Video or Audio)
+ *   'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
+ *   true,                         // Log Page Event Toggle (true/false)
+ *   true,                         // Log Media Event Toggle (true/false)
+ * )
+ * ```
+ *
+ * ## Logging Events
+ *
+ * Once initiated, a [[MediaSession]] provides various log methods
+ * that will trigger a [[MediaEvent]].
+ *
+ * ```javascript
+ * mediaSession.logMediaSessionStart();
+ * mediaSession.logPlay();
+ * ```
+ *
+ * ## Custom Attributes
+ * By default, a `MediaEvent` will have certain required attributes,
+ * such as `custom_media_id` and `custom_media_title`, etc. However,
+ * if you require to log something custom, such as `content_season_number`
+ * or `player_name`, this can be added to `customAttributes`.
+ *
+ * These `customAttributes` are attributes unique to the media event
+ * but can be passed through the `MediaSession` via the various log
+ * functions as an `options` parameter.
+ *
+ * ```javascript
+ * const customAttributes = {
+ *     content_season: 3,
+ *     content_episode: 26,
+ *     content_episode_name: 'The Best of Both Worlds',
+ * };
+ *
+ * mediaSession.logPlay({ options: currentAttributes })
+ * ```
  */
 export default class MediaSession {
     adBreak?: AdBreak;
@@ -31,6 +78,7 @@ export default class MediaSession {
     private _sessionId = '';
 
     private currentPlayheadPosition = 0;
+    private customAttributes: ModelAttributes = {};
 
     /**
      * Initializes the Media Session object. This does not start a session, you can do so by calling `logMediaSessionStart`.
@@ -57,8 +105,23 @@ export default class MediaSession {
     /**
      * Creates a base Media Event
      * @param eventType
+     * @param customAttributes
      */
-    private createMediaEvent(eventType: MediaEventType): MediaEvent {
+    private createMediaEvent(
+        eventType: MediaEventType,
+        options: Options = {}
+    ): MediaEvent {
+        // Set event option based on options or current state
+        this.currentPlayheadPosition =
+            options?.currentPlayheadPosition || this.currentPlayheadPosition;
+        this.customAttributes = options?.customAttributes || {};
+
+        options = {
+            currentPlayheadPosition: this.currentPlayheadPosition,
+            customAttributes: this.customAttributes,
+            ...options,
+        };
+
         return new MediaEvent(
             eventType,
             this.title,
@@ -66,7 +129,8 @@ export default class MediaSession {
             this.duration,
             this.contentType,
             this.streamType,
-            this.sessionId
+            this.sessionId,
+            options
         );
     }
 
@@ -106,21 +170,26 @@ export default class MediaSession {
 
     /**
      * Starts your media session. Should be triggered before any prerolls or ads
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logMediaSessionStart() {
+    logMediaSessionStart(options?: Options) {
         this._sessionId = uuid();
-        const event = this.createMediaEvent(MediaEventType.SessionStart);
+        const event = this.createMediaEvent(
+            MediaEventType.SessionStart,
+            options
+        );
 
         this.logEvent(event);
     }
 
     /**
-     * Ends your media session. Should be the method thing triggered, after all ads and content have been completed
+     * Ends your media session. Should be triggered after all ads and content have been completed
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logMediaSessionEnd() {
-        const event = this.createMediaEvent(MediaEventType.SessionEnd);
+    logMediaSessionEnd(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.SessionEnd, options);
 
         this.logEvent(event);
     }
@@ -128,10 +197,14 @@ export default class MediaSession {
     /**
      * Logs when your media content has ended, usually before a post-roll ad.
      * Must be fired between MediaSessionStart and MediaSessionEnd
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logMediaContentEnd() {
-        const event = this.createMediaEvent(MediaEventType.MediaContentEnd);
+    logMediaContentEnd(options?: Options) {
+        const event = this.createMediaEvent(
+            MediaEventType.MediaContentEnd,
+            options
+        );
 
         this.logEvent(event);
     }
@@ -139,12 +212,16 @@ export default class MediaSession {
     /**
      * Logs when an Ad Break pod has started
      * @param adBreakContent An object representing an [[AdBreak]] (collection of ads)
+     * @param options Optional Custom Attributes
      * @category Advertising
      */
-    logAdBreakStart(adBreakContent: AdBreak) {
+    logAdBreakStart(adBreakContent: AdBreak, options?: Options) {
         this.adBreak = adBreakContent;
 
-        const event = this.createMediaEvent(MediaEventType.AdBreakStart);
+        const event = this.createMediaEvent(
+            MediaEventType.AdBreakStart,
+            options
+        );
 
         event.adBreak = adBreakContent;
 
@@ -153,10 +230,11 @@ export default class MediaSession {
 
     /**
      * Logs when an [[AdBreak]] pod has ended
+     * @param options Optional Custom Attributes
      * @category Advertising
      */
-    logAdBreakEnd() {
-        const event = this.createMediaEvent(MediaEventType.AdBreakEnd);
+    logAdBreakEnd(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.AdBreakEnd, options);
         event.adBreak = this.adBreak;
 
         this.logEvent(event);
@@ -166,12 +244,13 @@ export default class MediaSession {
     /**
      * Logs when a single ad plays
      * @param adContent An object representing a single Ad
+     * @param options Optional Custom Attributes
      * @category Advertising
      */
-    logAdStart(adContent: AdContent) {
+    logAdStart(adContent: AdContent, options?: Options) {
         this.adContent = adContent;
 
-        const event = this.createMediaEvent(MediaEventType.AdStart);
+        const event = this.createMediaEvent(MediaEventType.AdStart, options);
         event.adContent = adContent;
 
         this.logEvent(event);
@@ -179,10 +258,11 @@ export default class MediaSession {
 
     /**
      * Logs when a single ad ends
+     * @param options Optional Custom Attributes
      * @category Advertising
      */
-    logAdEnd() {
-        const event = this.createMediaEvent(MediaEventType.AdEnd);
+    logAdEnd(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.AdEnd, options);
         event.adContent = this.adContent;
 
         this.logEvent(event);
@@ -191,10 +271,11 @@ export default class MediaSession {
 
     /**
      * Logs when a single ad is skipped by a visitor
+     * @param options Optional Custom Attributes
      * @category Advertising
      */
-    logAdSkip() {
-        const event = this.createMediaEvent(MediaEventType.AdSkip);
+    logAdSkip(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.AdSkip, options);
         event.adContent = this.adContent;
 
         this.logEvent(event);
@@ -203,11 +284,12 @@ export default class MediaSession {
 
     /**
      * Logs when a single ad is clicked on by a visitor
+     * @param options Optional Custom Attributes
      * @category Advertising
      */
-    logAdClick(adContent: AdContent) {
+    logAdClick(adContent: AdContent, options?: Options) {
         this.adContent = adContent;
-        const event = this.createMediaEvent(MediaEventType.AdClick);
+        const event = this.createMediaEvent(MediaEventType.AdClick, options);
         event.adContent = this.adContent;
 
         this.logEvent(event);
@@ -218,14 +300,19 @@ export default class MediaSession {
      * @param bufferDuration The duration of a buffering event
      * @param bufferPercent The percent that has been buffered
      * @param bufferPosition The playhead position of the buffering event
+     * @param options Optional Custom Attributes
      * @category Buffering
      */
     logBufferStart(
         bufferDuration: number,
         bufferPercent: number,
-        bufferPosition: number
+        bufferPosition: number,
+        options?: Options
     ) {
-        const event = this.createMediaEvent(MediaEventType.BufferStart);
+        const event = this.createMediaEvent(
+            MediaEventType.BufferStart,
+            options
+        );
 
         event.bufferDuration = bufferDuration;
         event.bufferPercent = bufferPercent;
@@ -239,14 +326,16 @@ export default class MediaSession {
      * @param bufferDuration The duration of a buffering event
      * @param bufferPercent The percent that has been buffered
      * @param bufferPosition The playhead position of the buffering event
+     * @param options Optional Custom Attributes
      * @category Buffering
      */
     logBufferEnd(
         bufferDuration: number,
         bufferPercent: number,
-        bufferPosition: number
+        bufferPosition: number,
+        options?: Options
     ) {
-        const event = this.createMediaEvent(MediaEventType.BufferEnd);
+        const event = this.createMediaEvent(MediaEventType.BufferEnd, options);
 
         event.bufferDuration = bufferDuration;
         event.bufferPercent = bufferPercent;
@@ -257,29 +346,35 @@ export default class MediaSession {
 
     /**
      * Logs a play event
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logPlay() {
-        const event = this.createMediaEvent(MediaEventType.Play);
+    logPlay(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.Play, options);
         this.logEvent(event);
     }
 
     /**
      * Logs a pause event
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logPause() {
-        const event = this.createMediaEvent(MediaEventType.Pause);
+    logPause(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.Pause, options);
         this.logEvent(event);
     }
 
     /**
      * Logs the start of a Segment or Chapter
      * @param segment An object representing a segment or chapter of content
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logSegmentStart(segment: Segment) {
-        const event = this.createMediaEvent(MediaEventType.SegmentStart);
+    logSegmentStart(segment: Segment, options?: Options) {
+        const event = this.createMediaEvent(
+            MediaEventType.SegmentStart,
+            options
+        );
 
         event.segment = segment;
 
@@ -289,10 +384,11 @@ export default class MediaSession {
 
     /**
      * Logs the end of a Segment or Chapter
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logSegmentEnd() {
-        const event = this.createMediaEvent(MediaEventType.SegmentEnd);
+    logSegmentEnd(options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.SegmentEnd, options);
         event.segment = this.segment;
 
         this.logEvent(event);
@@ -301,10 +397,14 @@ export default class MediaSession {
 
     /**
      * Logs when a visitor skips a Segment or Chapter
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logSegmentSkip() {
-        const event = this.createMediaEvent(MediaEventType.SegmentSkip);
+    logSegmentSkip(options?: Options) {
+        const event = this.createMediaEvent(
+            MediaEventType.SegmentSkip,
+            options
+        );
         event.segment = this.segment;
         this.logEvent(event);
         this.segment = undefined;
@@ -313,10 +413,11 @@ export default class MediaSession {
     /**
      * Logs when a visitor starts seeking
      * @param seekPosition the desired playhead position
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logSeekStart(seekPosition: number) {
-        const event = this.createMediaEvent(MediaEventType.SeekStart);
+    logSeekStart(seekPosition: number, options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.SeekStart, options);
 
         event.seekPosition = seekPosition;
 
@@ -326,10 +427,11 @@ export default class MediaSession {
     /**
      * Logs when a visitor stops seeking
      * @param seekPosition the desired playhead position
+     * @param options Optional Custom Attributes
      * @category Media
      */
-    logSeekEnd(seekPosition: number) {
-        const event = this.createMediaEvent(MediaEventType.SeekEnd);
+    logSeekEnd(seekPosition: number, options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.SeekEnd, options);
 
         event.seekPosition = seekPosition;
 
@@ -355,10 +457,11 @@ export default class MediaSession {
     /**
      * Logs an update in the Quality of Service
      * @param qos An object representing QoS
+     * @param options Optional Custom Attributes
      * @category Quality of Service
      */
-    logQoS(qos: QoS) {
-        const event = this.createMediaEvent(MediaEventType.UpdateQoS);
+    logQoS(qos: QoS, options?: Options) {
+        const event = this.createMediaEvent(MediaEventType.UpdateQoS, options);
         event.qos = qos;
 
         this.logEvent(event);
@@ -385,7 +488,7 @@ export default class MediaSession {
      */
     createPageEvent(
         eventName: string,
-        attributes: { [key: string]: string | number }
+        attributes: ModelAttributes
     ): PageEventObject {
         return {
             name: eventName,

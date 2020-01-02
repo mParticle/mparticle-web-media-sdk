@@ -63,6 +63,51 @@ mediaSession.logPlay();
 
 ```
 
+### Logging Custom Attributes
+
+By default, a `MediaEvent` will have certain required attributes, such as `custom_media_id` and `custom_media_title`, etc. However, if you need to log something custom, such as `content_season_number` or `player_name`, this can be included in the `customAttributes` object.
+
+These `customAttributes` are attributes unique to the media event but can be passed through the `MediaSession` via the various log functions as an `options` parameter.
+
+```javascript
+const customAttributes = {
+    content_season: 3,
+    content_episode: 26,
+    content_episode_name: 'The Best of Both Worlds',
+};
+
+mediaSession.logPlay({ options: currentAttributes });
+```
+
+### Logging Playhead Position
+
+Most of our partner integrations require that a media player frequently trigger a _timeline update_ or _heartbeat_ event. Our API provides two different methods of updating the playhead position based on your needs.
+
+#### logPlayheadPosition (recommended)
+
+The simplest method we provide is the current playhead position as a number to the `MediaSession.logPlayheadPostition()` method.
+
+```javascript
+player.addEventListener('playheadUpdate', function(currentPlayheadPosition) {
+    mediaSession.logPlayheadPosition({ options: currentPlayheadPosition });
+});
+```
+
+#### As Optional Parameter
+
+If your implementation prevents you from triggering a playhead position update on regular intervals, you can provide the `currentPlayheadPosition` attribute via `options` to any log method.
+
+```javascript
+
+const options = {
+    currentPlayheadPosition: 299;
+}
+
+mparticle.logPause(options);
+mparticle.logAdSkip(exampleAdObject, options);
+
+```
+
 ## Logging Custom Events
 
 Depending on your use case or player's events, there might be a need to log an event which the Media SDK does not currently support. In these cases, please use the `createPageEvent` method to trigger a custom event via the Core SDK.

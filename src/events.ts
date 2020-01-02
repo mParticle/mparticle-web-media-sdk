@@ -12,6 +12,7 @@ import {
     EventType,
     PageEventObject,
     ValidMediaAttributeKeys,
+    Options,
 } from './types';
 
 import { getNameFromType, uuid } from './utils';
@@ -41,6 +42,16 @@ export abstract class BaseEvent {
 
 /**
  * Represents a single media event. Generally you won't call this class directly. The Media SDK calls this class internally when you invoke methods on [[MediaSession]].
+ *
+ * ## Custom Attributes
+ * By default, a `MediaEvent` will have certain required attributes,
+ * such as `custom_media_id` and `custom_media_title`, etc. However,
+ * if you need to log something custom, such as `content_season_number`
+ * or `player_name`, this can be included in the `customAttributes` object .
+ *
+ * These `customAttributes` are attributes unique to the media event
+ * but can be passed through the `MediaSession` via the various log
+ * functions as an `options` parameter.
  */
 export class MediaEvent extends BaseEvent {
     id: string = uuid();
@@ -53,6 +64,7 @@ export class MediaEvent extends BaseEvent {
     bufferPercent?: number;
     bufferPosition?: number;
     playheadPosition?: number;
+    customAttributes?: ModelAttributes;
     qos?: QoS;
 
     /**
@@ -64,6 +76,7 @@ export class MediaEvent extends BaseEvent {
      * @param contentType Content Type. i.e. video vs audio
      * @param streamType Stream Type i.e. live vs on demand
      * @param mediaSessionID Session ID from media Session
+     * @param customAttributes A dictionary of custom attributes
      * @returns An instance of a Media Event
      */
     constructor(
@@ -73,10 +86,21 @@ export class MediaEvent extends BaseEvent {
         public duration: number,
         readonly contentType: MediaContentType,
         readonly streamType: MediaStreamType,
-        readonly mediaSessionID: string
+        readonly mediaSessionID: string,
+        public options: Options = {}
     ) {
         super(getNameFromType(eventType), eventType, MessageType.Media);
+
+        this.playheadPosition = options?.currentPlayheadPosition;
+        this.customAttributes = options?.customAttributes;
     }
+
+    /**
+     * @hidden Returns custom attributes
+     */
+    getCustomAttributes = () => {
+        return this.options.customAttributes;
+    };
 
     /**
      * @hidden Returns session related event attributes
@@ -249,6 +273,7 @@ export class MediaEvent extends BaseEvent {
         return {
             ...this.getSessionAttributes(),
             ...this.getEventAttributes(),
+            ...this.getCustomAttributes(),
         };
     };
 
@@ -289,6 +314,8 @@ export class MediaEvent extends BaseEvent {
             Duration: this.duration,
             ContentType: MediaContentType[this.contentType],
             StreamType: MediaStreamType[this.streamType],
+
+            EventAttributes: this.options.customAttributes,
         };
     };
 }
