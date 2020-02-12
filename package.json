@@ -13,12 +13,14 @@
         "build": "npm run build:prod",
         "build:dev": "ENVIRONMENT=dev rollup --config rollup.config.js",
         "build:prod": "ENVIRONMENT=prod rollup --config rollup.config.js",
-        "coverage": "nyc --reporter=lcov --reporter=teamcity --extension .ts mocha -r ts-node/register test/**/*.test.ts",
-        "test": "npm run test:mocha",
-        "test:mocha": "mocha -r ts-node/register test/**/*.test.ts",
-        "test:mocha:junit": "mocha -r ts-node/register test/**/*.test.ts --reporter mocha-junit-reporter --reporter-options mochaFile=./test/reports/unit-tests/test-media-sdk.xml",
-        "test:mocha:watch": "mocha -r ts-node/register --watch-extensions ts --watch test/**/*.test.ts --reporter nyan",
-        "test:karma": "karma start",
+        "test": "npm run test:ts && npm run test:js",
+        "test:ts": "mocha -r ts-node/register test/**/*.test.ts",
+        "test:ts:watch": "mocha -r ts-node/register --watch-extensions ts --watch test/**/*.test.ts --reporter nyan",
+        "test:js": "npm run build && mocha",
+        "test:js:watch": "mocha --reporter nyan --watch",
+        "coverage": "npm run coverage:nyc && npm run coverage:junit",
+        "coverage:junit": "mocha -r ts-node/register test/**/*.test.ts --reporter mocha-junit-reporter --reporter-options mochaFile=./test/reports/unit-tests/test-media-sdk.xml",
+        "coverage:nyc": "nyc --reporter=lcov --reporter=teamcity --extension .ts mocha -r ts-node/register test/**/*.test.ts",
         "lint": "npm run gts:check",
         "serve:dev": "npm run watch",
         "gts:check": "gts check",
@@ -35,7 +37,7 @@
     ],
     "pre-commit": [
         "lint",
-        "test:mocha:junit"
+        "test"
     ],
     "files": [
         "dist/mparticle-media.common.js",

@@ -1,35 +1,26 @@
-import MediaSession from '../src';
-import { expect } from 'chai';
-import sinon, { SinonSandbox } from 'sinon';
-import { MediaEvent } from '../src/events';
-import {
-    MessageType,
-    MediaContent,
-    MediaContentType,
-    MediaStreamType,
-    MpSDKInstance,
-    EventType,
-} from '../src/types';
+const sinon = require('sinon');
+const { expect } = require('chai');
+const MediaSession = require('../dist/mparticle-media.common');
 
-let sandbox: SinonSandbox;
-let mp: MpSDKInstance;
-let mpMedia: MediaSession;
-let song: MediaContent;
+let sandbox;
+let song;
+let mp;
+let mpMedia;
 
-describe('TS Integration Tests', () => {
+describe('JS Integration Tests', () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         mp = {
-            logBaseEvent: (event: MediaEvent) => {},
-            logger: (message: string) => {},
+            logBaseEvent: event => {},
+            logger: message => {},
         };
 
         song = {
             contentId: '023134',
             title: 'Immigrant Song',
             duration: 120000,
-            contentType: MediaContentType.Video,
-            streamType: MediaStreamType.OnDemand,
+            contentType: 'Video',
+            streamType: 'OnDemand',
         };
 
         mpMedia = new MediaSession(
@@ -46,7 +37,6 @@ describe('TS Integration Tests', () => {
         sandbox.restore();
     });
 
-    // TODO: Maybe have tests that use event and session?
     describe('Media Event Listener', () => {
         beforeEach(() => {
             mpMedia.logPageEvent = false;
@@ -70,10 +60,6 @@ describe('TS Integration Tests', () => {
             expect(bond.args[0][0].name).to.eq('Play');
             expect(bond.args[1][0].name).to.eq('Pause');
             expect(bond.args[2][0].name).to.eq('Buffer Start');
-
-            bond.args.forEach(arg => {
-                expect(arg[0]).to.be.instanceOf(MediaEvent);
-            });
         });
 
         it('should log MP Events', () => {
@@ -122,8 +108,8 @@ describe('TS Integration Tests', () => {
 
             const expectedObject = {
                 name: 'Media Session Start',
-                messageType: MessageType.PageEvent,
-                eventType: EventType.Media,
+                messageType: 4, // PageEvent
+                eventType: 9, // Media
                 data: {
                     content_id: '023134',
                     content_title: 'Immigrant Song',
@@ -165,8 +151,8 @@ describe('TS Integration Tests', () => {
             it('should maintain playhead position for every log method', () => {
                 const bond = sinon.spy(mp, 'logBaseEvent');
                 expect(mpMedia.getAttributes().playhead_position).equal(0);
-                mpMedia.logPlayheadPosition(60);
 
+                mpMedia.logPlayheadPosition(60);
                 expect(mpMedia.getAttributes().playhead_position).equal(60);
                 expect(
                     bond.args[0][0].playheadPosition,
@@ -174,7 +160,6 @@ describe('TS Integration Tests', () => {
                 ).equal(60);
 
                 mpMedia.logPlay({ currentPlayheadPosition: 97 });
-
                 expect(mpMedia.getAttributes().playhead_position).equal(97);
                 expect(
                     bond.args[1][0].playheadPosition,
