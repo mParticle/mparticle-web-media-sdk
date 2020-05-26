@@ -116,7 +116,11 @@ export type AdContent = {
     /**
      * Name of placement. i.e. main-video-01 or featured-video-widget
      */
-    placement?: number;
+    placement?: string;
+    /**
+     * Position Index Number.
+     */
+    position?: number;
     /**
      * Identifier for the site the ad lives on
      */
@@ -228,6 +232,7 @@ export const ValidMediaAttributeKeys: { [key: string]: string } = {
     adCampaign: 'ad_content_campaign',
     adCreative: 'ad_content_creative',
     adPlacement: 'ad_content_placement',
+    adPosition: 'ad_content_position',
     adSiteId: 'ad_content_site_id',
 
     //MediaAdBreak

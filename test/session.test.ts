@@ -25,8 +25,8 @@ describe('MediaSession', () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         mp = {
-            logBaseEvent: (event: MediaEvent) => {},
-            logger: (message: string) => {},
+            logBaseEvent: (event: MediaEvent) => { },
+            logger: (message: string) => { },
         };
 
         song = {
@@ -196,7 +196,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: 'A Fishful of Dollars',
                 siteid: 'moms',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.logAdStart(adContent);
@@ -228,7 +229,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.logAdStart(adContent);
@@ -247,7 +249,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             const options = {
@@ -278,7 +281,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.adContent = adContent;
@@ -312,7 +316,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.adContent = adContent;
@@ -352,7 +357,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.adContent = adContent;
@@ -385,7 +391,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.adContent = adContent;
@@ -425,7 +432,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             mpMedia.logAdClick(adContent);
@@ -459,7 +467,8 @@ describe('MediaSession', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: "first",
+                position: 0,
             };
 
             const options = {
