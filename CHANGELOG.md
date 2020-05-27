@@ -1,10 +1,20 @@
 ## Releases
 
-#### 1.2.1 - 2019-01-02
+#### 1.4.0 - 2020-05-27
+
+-   Add Ad Position and Revise Placement
+
+#### 1.3.0 - 2020-01-02
+
+-   Add Travis CI
+-   Add NYC Code Coverage
+-   Split Session into a new file structure
+
+#### 1.2.1 - 2020-01-02
 
 -   Replace bundled mparticle-media.common.js
 
-#### 1.2.0 - 2019-01-02
+#### 1.2.0 - 2020-01-02
 
 -   Add support for optional parameters in MediaSession Log Methods
 -   Add custom attributes to MediaSession and MediaEvent

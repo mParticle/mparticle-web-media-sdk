@@ -1,6 +1,6 @@
 {
     "name": "@mparticle/web-media-sdk",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "Media SDK for mParticle",
     "main": "dist/mparticle-media.common.js",
     "types": "dist/index.d.ts",
