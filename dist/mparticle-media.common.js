@@ -135,6 +135,7 @@ var ValidMediaAttributeKeys = {
     adCampaign: 'ad_content_campaign',
     adCreative: 'ad_content_creative',
     adPlacement: 'ad_content_placement',
+    adPosition: 'ad_content_position',
     adSiteId: 'ad_content_site_id',
     //MediaAdBreak
     adBreakTitle: 'ad_break_title',
@@ -289,8 +290,11 @@ var MediaEvent = /** @class */ (function (_super) {
                 if (_this.adContent.siteid) {
                     eventAttributes[ValidMediaAttributeKeys.adSiteId] = _this.adContent.siteid;
                 }
-                if (typeof _this.adContent.placement === 'number') {
+                if (typeof _this.adContent.placement === 'string') {
                     eventAttributes[ValidMediaAttributeKeys.adPlacement] = _this.adContent.placement;
+                }
+                if (typeof _this.adContent.position === 'number') {
+                    eventAttributes[ValidMediaAttributeKeys.adPosition] = _this.adContent.position;
                 }
                 if (_this.adContent.duration) {
                     eventAttributes[ValidMediaAttributeKeys.adDuration] = _this.adContent.duration;
