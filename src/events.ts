@@ -200,10 +200,15 @@ export class MediaEvent extends BaseEvent {
                     ValidMediaAttributeKeys.adSiteId
                 ] = this.adContent.siteid;
             }
-            if (typeof this.adContent.placement === 'number') {
+            if (typeof this.adContent.placement === 'string') {
                 eventAttributes[
                     ValidMediaAttributeKeys.adPlacement
                 ] = this.adContent.placement;
+            }
+            if (typeof this.adContent.position === 'number') {
+                eventAttributes[
+                    ValidMediaAttributeKeys.adPosition
+                ] = this.adContent.position;
             }
             if (this.adContent.duration) {
                 eventAttributes[

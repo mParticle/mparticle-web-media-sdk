@@ -359,7 +359,8 @@ describe('MediaEvent', () => {
                 duration: 60000,
                 creative: "We'll be happy to have you for dinner",
                 siteid: 'op8',
-                placement: 0,
+                placement: 'first',
+                position: 0,
             };
 
             mediaEvent.adContent = adContent;
@@ -382,7 +383,8 @@ describe('MediaEvent', () => {
                     ad_content_creative:
                         "We'll be happy to have you for dinner",
                     ad_content_site_id: 'op8',
-                    ad_content_placement: 0,
+                    ad_content_placement: 'first',
+                    ad_content_position: 0,
                     media_session_id: '1234567890',
                 },
             };
@@ -533,7 +535,8 @@ describe('MediaEvent', () => {
                 duration: 60000,
                 creative: 'A Fishful of Dollars',
                 siteid: 'moms',
-                placement: 0,
+                placement: 'first',
+                position: 0,
             };
 
             mediaEvent.segment = {
@@ -584,7 +587,8 @@ describe('MediaEvent', () => {
                     duration: 60000,
                     creative: 'A Fishful of Dollars',
                     siteid: 'moms',
-                    placement: 0,
+                    placement: 'first',
+                    position: 0,
                 },
 
                 Segment: {
