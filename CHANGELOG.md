@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.4.1 - 2020-06-24
+
+-   Add Summary Events
+
 #### 1.4.0 - 2020-05-27
 
 -   Add Ad Position and Revise Placement
