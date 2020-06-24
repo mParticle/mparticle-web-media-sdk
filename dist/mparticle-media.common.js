@@ -73,6 +73,9 @@ var MediaEventType;
     MediaEventType[MediaEventType["SegmentEnd"] = 44] = "SegmentEnd";
     MediaEventType[MediaEventType["SegmentSkip"] = 45] = "SegmentSkip";
     MediaEventType[MediaEventType["UpdateQoS"] = 46] = "UpdateQoS";
+    MediaEventType[MediaEventType["SessionSummary"] = 47] = "SessionSummary";
+    MediaEventType[MediaEventType["SegmentSummary"] = 48] = "SegmentSummary";
+    MediaEventType[MediaEventType["AdSummary"] = 49] = "AdSummary";
 })(MediaEventType || (MediaEventType = {}));
 var MediaEventName = {
     Play: 'Play',
@@ -95,6 +98,9 @@ var MediaEventName = {
     SegmentEnd: 'Segment End',
     SegmentSkip: 'Segment Skip',
     UpdateQoS: 'Update QoS',
+    SessionSummary: 'Media Session Summary',
+    SegmentSummary: 'Media Segment Summary',
+    AdSummary: 'Media Ad Summary',
 };
 var MediaContentType;
 (function (MediaContentType) {
@@ -146,6 +152,36 @@ var ValidMediaAttributeKeys = {
     segmentTitle: 'segment_title',
     segmentIndex: 'segment_index',
     segmentDuration: 'segment_duration',
+    // Session Summary Attributes
+    mediaSessionIdKey: 'media_session_id',
+    startTimestampKey: 'media_session_start_time',
+    endTimestampKey: 'media_session_end_time',
+    contentIdKey: 'content_id',
+    contentTitleKey: 'content_title',
+    mediaTimeSpentKey: 'media_time_spent',
+    contentTimeSpentKey: 'media_content_time_spent',
+    contentCompleteKey: 'media_content_complete',
+    totalSegmentsKey: 'media_session_segment_total',
+    totalAdTimeSpentKey: 'media_total_ad_time_spent',
+    adTimeSpentRateKey: 'media_ad_time_spent_rate',
+    totalAdsKey: 'media_session_ad_total',
+    adIDsKey: 'media_session_ad_objects',
+    // Ad Summary Attributes
+    adBreakIdKey: 'ad_break_id',
+    adContentIdKey: 'ad_content_id',
+    adContentStartTimestampKey: 'ad_content_start_time',
+    adContentEndTimestampKey: 'ad_content_end_time',
+    adContentTitleKey: 'ad_content_title',
+    adContentSkippedKey: 'ad_skipped',
+    adContentCompletedKey: 'ad_completed',
+    // Segment Summary Attributes
+    segmentIndexKey: 'segment_index',
+    segmentTitleKey: 'segment_title',
+    segmentStartTimestampKey: 'segment_start_time',
+    segmentEndTimestampKey: 'segment_end_time',
+    segmentTimeSpentKey: 'media_segment_time_spent',
+    segmentSkippedKey: 'segment_skipped',
+    segmentCompletedKey: 'segment_completed',
 };
 
 var uuid = function () {
@@ -465,7 +501,18 @@ var MediaSession = /** @class */ (function () {
             droppedFrames: 0,
         };
         this.customAttributes = {};
+        this.mediaSessionStartTimestamp = Date.now(); //Timestamp created on logMediaSessionStart event
+        this.mediaSessionEndTimestamp = Date.now(); //Timestamp updated when any event is loggged
+        this.storedPlaybackTime = 0; //On Pause calculate playback time and clear currentPlaybackTime
+        this.mediaContentCompleteLimit = 100; //Percentage of content that must be progressed through to mark as completed
+        this.mediaContentComplete = false; //Updates to true triggered by logMediaContentEnd, 0 or false if complete milestone not reached.
+        this.mediaSessionSegmentTotal = 0; //number incremented with each logSegmentStart
+        this.mediaTotalAdTimeSpent = 0; //total second sum of ad break time spent
+        this.mediaSessionAdTotal = 0; //number of ads played in the media session - increment on logAdStart
+        this.mediaSessionAdObjects = []; //array of unique identifiers for ads played in the media session - append ad_content_ID on logAdStart
+        this.sessionSummarySent = false; // Ensures we only send the summary event once
         this.listenerCallback = function () { };
+        this.mediaSessionStartTimestamp = Date.now();
     }
     Object.defineProperty(MediaSession.prototype, "sessionId", {
         get: function () {
@@ -474,6 +521,21 @@ var MediaSession = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    MediaSession.prototype.mediaTimeSpent = function () {
+        return this.mediaSessionEndTimestamp - this.mediaSessionStartTimestamp;
+    };
+    MediaSession.prototype.mediaContentTimeSpent = function () {
+        if (this.currentPlaybackStartTimestamp) {
+            return (this.storedPlaybackTime +
+                (Date.now() - this.currentPlaybackStartTimestamp));
+        }
+        else {
+            return this.storedPlaybackTime;
+        }
+    };
+    MediaSession.prototype.mediaAdTimeSpentRate = function () {
+        return ((this.mediaTotalAdTimeSpent / this.mediaContentTimeSpent()) * 100);
+    };
     /**
      * Creates a base Media Event
      * @param eventType
@@ -494,6 +556,14 @@ var MediaSession = /** @class */ (function () {
      * @param event MediaEvent
      */
     MediaSession.prototype.logEvent = function (event) {
+        this.mediaSessionEndTimestamp = Date.now();
+        if (this.mediaContentCompleteLimit !== 100) {
+            if (this.duration &&
+                this.currentPlayheadPosition / this.duration >=
+                    this.mediaContentCompleteLimit / 100) {
+                this.mediaContentComplete = true;
+            }
+        }
         this.mediaEventListener(event);
         if (this.logMediaEvent) {
             this.mparticleInstance.logBaseEvent(event);
@@ -545,6 +615,7 @@ var MediaSession = /** @class */ (function () {
      */
     MediaSession.prototype.logMediaSessionStart = function (options) {
         this._sessionId = uuid();
+        this.mediaSessionStartTimestamp = Date.now();
         var event = this.createMediaEvent(MediaEventType.SessionStart, options);
         this.logEvent(event);
     };
@@ -556,6 +627,7 @@ var MediaSession = /** @class */ (function () {
     MediaSession.prototype.logMediaSessionEnd = function (options) {
         var event = this.createMediaEvent(MediaEventType.SessionEnd, options);
         this.logEvent(event);
+        this.logSessionSummary();
     };
     /**
      * Logs when your media content has ended, usually before a post-roll ad.
@@ -564,6 +636,7 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logMediaContentEnd = function (options) {
+        this.mediaContentComplete = true;
         var event = this.createMediaEvent(MediaEventType.MediaContentEnd, options);
         this.logEvent(event);
     };
@@ -597,7 +670,10 @@ var MediaSession = /** @class */ (function () {
      * @category Advertising
      */
     MediaSession.prototype.logAdStart = function (adContent, options) {
+        this.mediaSessionAdTotal += 1;
+        this.mediaSessionAdObjects.push(adContent.id);
         this.adContent = adContent;
+        this.adContent.adStartTimestamp = Date.now();
         var event = this.createMediaEvent(MediaEventType.AdStart, options);
         event.adContent = adContent;
         this.logEvent(event);
@@ -608,10 +684,19 @@ var MediaSession = /** @class */ (function () {
      * @category Advertising
      */
     MediaSession.prototype.logAdEnd = function (options) {
+        var _a;
+        if ((_a = this.adContent) === null || _a === void 0 ? void 0 : _a.adStartTimestamp) {
+            this.adContent.adEndTimestamp = Date.now();
+            this.adContent.adCompleted = true;
+            this.adContent.adSkipped = false;
+            this.mediaTotalAdTimeSpent +=
+                this.adContent.adEndTimestamp -
+                    this.adContent.adStartTimestamp;
+        }
         var event = this.createMediaEvent(MediaEventType.AdEnd, options);
         event.adContent = this.adContent;
         this.logEvent(event);
-        this.adContent = undefined;
+        this.logAdSummary();
     };
     /**
      * Logs when a single ad is skipped by a visitor
@@ -619,10 +704,19 @@ var MediaSession = /** @class */ (function () {
      * @category Advertising
      */
     MediaSession.prototype.logAdSkip = function (options) {
+        var _a;
+        if ((_a = this.adContent) === null || _a === void 0 ? void 0 : _a.adStartTimestamp) {
+            this.adContent.adEndTimestamp = Date.now();
+            this.adContent.adSkipped = true;
+            this.adContent.adCompleted = false;
+            this.mediaTotalAdTimeSpent +=
+                this.adContent.adEndTimestamp -
+                    this.adContent.adStartTimestamp;
+        }
         var event = this.createMediaEvent(MediaEventType.AdSkip, options);
         event.adContent = this.adContent;
         this.logEvent(event);
-        this.adContent = undefined;
+        this.logAdSummary();
     };
     /**
      * Logs when a single ad is clicked on by a visitor
@@ -671,6 +765,9 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logPlay = function (options) {
+        if (!this.currentPlaybackStartTimestamp) {
+            this.currentPlaybackStartTimestamp = Date.now();
+        }
         var event = this.createMediaEvent(MediaEventType.Play, options);
         this.logEvent(event);
     };
@@ -680,6 +777,12 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logPause = function (options) {
+        if (this.currentPlaybackStartTimestamp) {
+            this.storedPlaybackTime =
+                this.storedPlaybackTime +
+                    (Date.now() - this.currentPlaybackStartTimestamp);
+            this.currentPlaybackStartTimestamp = undefined;
+        }
         var event = this.createMediaEvent(MediaEventType.Pause, options);
         this.logEvent(event);
     };
@@ -690,10 +793,12 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logSegmentStart = function (segment, options) {
+        this.mediaSessionSegmentTotal += 1;
+        segment.segmentStartTimestamp = Date.now();
+        this.segment = segment;
         var event = this.createMediaEvent(MediaEventType.SegmentStart, options);
         event.segment = segment;
         this.logEvent(event);
-        this.segment = segment;
     };
     /**
      * Logs the end of a Segment or Chapter
@@ -701,10 +806,16 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logSegmentEnd = function (options) {
+        var _a;
+        if ((_a = this.segment) === null || _a === void 0 ? void 0 : _a.segmentStartTimestamp) {
+            this.segment.segmentEndTimestamp = Date.now();
+            this.segment.segmentCompleted = true;
+            this.segment.segmentSkipped = false;
+        }
         var event = this.createMediaEvent(MediaEventType.SegmentEnd, options);
         event.segment = this.segment;
         this.logEvent(event);
-        this.segment = undefined;
+        this.logSegmentSummary();
     };
     /**
      * Logs when a visitor skips a Segment or Chapter
@@ -712,10 +823,16 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logSegmentSkip = function (options) {
+        var _a;
+        if ((_a = this.segment) === null || _a === void 0 ? void 0 : _a.segmentStartTimestamp) {
+            this.segment.segmentEndTimestamp = Date.now();
+            this.segment.segmentSkipped = true;
+            this.segment.segmentCompleted = false;
+        }
         var event = this.createMediaEvent(MediaEventType.SegmentSkip, options);
         event.segment = this.segment;
         this.logEvent(event);
-        this.segment = undefined;
+        this.logSegmentSummary();
     };
     /**
      * Logs when a visitor starts seeking
@@ -798,7 +915,7 @@ var MediaSession = /** @class */ (function () {
          * const mediaSession = new MediaSession(
          *     mParticle,
          *     title = "Media Title"
-         *     mediaContentId = "123"
+         *     contentId = "123"
          *     duration = 1000
          *     streamType = StreamType.LiveStream
          *     contentType = ContentType.Video
@@ -834,6 +951,91 @@ var MediaSession = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    MediaSession.prototype.logSessionSummary = function () {
+        if (!this.sessionSummarySent) {
+            if (!this.mediaSessionEndTimestamp) {
+                this.mediaSessionEndTimestamp = Date.now();
+            }
+            // tslint:disable-next-line: no-any
+            var customAttributes = {};
+            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] = this.sessionId;
+            customAttributes[ValidMediaAttributeKeys.startTimestampKey] = this.mediaSessionStartTimestamp;
+            customAttributes[ValidMediaAttributeKeys.endTimestampKey] = this.mediaSessionEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.contentIdKey] = this.contentId;
+            customAttributes[ValidMediaAttributeKeys.contentTitleKey] = this.title;
+            customAttributes[ValidMediaAttributeKeys.mediaTimeSpentKey] = this.mediaTimeSpent();
+            customAttributes[ValidMediaAttributeKeys.contentTimeSpentKey] = this.mediaContentTimeSpent();
+            customAttributes[ValidMediaAttributeKeys.contentCompleteKey] = this.mediaContentComplete;
+            customAttributes[ValidMediaAttributeKeys.totalSegmentsKey] = this.mediaSessionSegmentTotal;
+            customAttributes[ValidMediaAttributeKeys.totalAdTimeSpentKey] = this.mediaTotalAdTimeSpent;
+            customAttributes[ValidMediaAttributeKeys.adTimeSpentRateKey] = this.mediaAdTimeSpentRate();
+            customAttributes[ValidMediaAttributeKeys.totalAdsKey] = this.mediaSessionAdTotal;
+            customAttributes[ValidMediaAttributeKeys.adIDsKey] = this.mediaSessionAdObjects;
+            var options = {
+                currentPlayheadPosition: this.currentPlayheadPosition,
+                customAttributes: customAttributes,
+            };
+            var summaryEvent = this.createMediaEvent(MediaEventType.SessionSummary, options);
+            this.logEvent(summaryEvent);
+            this.sessionSummarySent = true;
+        }
+    };
+    MediaSession.prototype.logSegmentSummary = function () {
+        var _a;
+        if ((_a = this.segment) === null || _a === void 0 ? void 0 : _a.segmentStartTimestamp) {
+            if (!this.segment.segmentEndTimestamp) {
+                this.segment.segmentEndTimestamp = Date.now();
+            }
+            // tslint:disable-next-line: no-any
+            var customAttributes = {};
+            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] = this.sessionId;
+            customAttributes[ValidMediaAttributeKeys.contentId] = this.contentId;
+            customAttributes[ValidMediaAttributeKeys.segmentIndexKey] = this.segment.index;
+            customAttributes[ValidMediaAttributeKeys.segmentTitleKey] = this.segment.title;
+            customAttributes[ValidMediaAttributeKeys.segmentStartTimestampKey] = this.segment.segmentStartTimestamp;
+            customAttributes[ValidMediaAttributeKeys.segmentEndTimestampKey] = this.segment.segmentEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.segmentTimeSpentKey] =
+                this.segment.segmentEndTimestamp -
+                    this.segment.segmentStartTimestamp;
+            customAttributes[ValidMediaAttributeKeys.segmentSkippedKey] = this.segment.segmentSkipped;
+            customAttributes[ValidMediaAttributeKeys.segmentCompletedKey] = this.segment.segmentCompleted;
+            var options = {
+                currentPlayheadPosition: this.currentPlayheadPosition,
+                customAttributes: customAttributes,
+            };
+            var summaryEvent = this.createMediaEvent(MediaEventType.SegmentSummary, options);
+            this.logEvent(summaryEvent);
+        }
+        this.segment = undefined;
+    };
+    MediaSession.prototype.logAdSummary = function () {
+        var _a, _b, _c, _d, _e, _f, _g;
+        if (this.adContent) {
+            if (this.adContent.adStartTimestamp) {
+                this.adContent.adEndTimestamp = Date.now();
+                this.mediaTotalAdTimeSpent +=
+                    this.adContent.adEndTimestamp -
+                        this.adContent.adStartTimestamp;
+            }
+            // tslint:disable-next-line: no-any
+            var customAttributes = {};
+            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] = this.sessionId;
+            customAttributes[ValidMediaAttributeKeys.adBreakIdKey] = (_a = this.adBreak) === null || _a === void 0 ? void 0 : _a.id;
+            customAttributes[ValidMediaAttributeKeys.adContentIdKey] = (_b = this.adContent) === null || _b === void 0 ? void 0 : _b.id;
+            customAttributes[ValidMediaAttributeKeys.adContentStartTimestampKey] = (_c = this.adContent) === null || _c === void 0 ? void 0 : _c.adStartTimestamp;
+            customAttributes[ValidMediaAttributeKeys.adContentEndTimestampKey] = (_d = this.adContent) === null || _d === void 0 ? void 0 : _d.adEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.adContentTitleKey] = (_e = this.adContent) === null || _e === void 0 ? void 0 : _e.title;
+            customAttributes[ValidMediaAttributeKeys.adContentSkippedKey] = (_f = this.adContent) === null || _f === void 0 ? void 0 : _f.adSkipped;
+            customAttributes[ValidMediaAttributeKeys.adContentCompletedKey] = (_g = this.adContent) === null || _g === void 0 ? void 0 : _g.adCompleted;
+            var options = {
+                currentPlayheadPosition: this.currentPlayheadPosition,
+                customAttributes: customAttributes,
+            };
+            var summaryEvent = this.createMediaEvent(MediaEventType.AdSummary, options);
+            this.logEvent(summaryEvent);
+        }
+        this.adContent = undefined;
+    };
     return MediaSession;
 }());
 
