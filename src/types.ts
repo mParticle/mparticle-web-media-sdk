@@ -42,6 +42,9 @@ export enum MediaEventType {
     SegmentEnd = 44,
     SegmentSkip = 45,
     UpdateQoS = 46,
+    SessionSummary = 47,
+    SegmentSummary = 48,
+    AdSummary = 49,
 }
 
 export const MediaEventName: { [key: string]: string } = {
@@ -65,6 +68,9 @@ export const MediaEventName: { [key: string]: string } = {
     SegmentEnd: 'Segment End',
     SegmentSkip: 'Segment Skip',
     UpdateQoS: 'Update QoS',
+    SessionSummary: 'Media Session Summary',
+    SegmentSummary: 'Media Segment Summary',
+    AdSummary: 'Media Ad Summary',
 };
 
 /**
@@ -125,6 +131,22 @@ export type AdContent = {
      * Identifier for the site the ad lives on
      */
     siteid?: string;
+    /**
+     * Timestamp for Ad start playback
+     */
+    adStartTimestamp?: number;
+    /**
+     * Timestamp for Ad end playback
+     */
+    adEndTimestamp?: number;
+    /**
+     * Flag for if the Ad was skipped
+     */
+    adSkipped?: boolean;
+    /**
+     * Flag for if the Ad was completed
+     */
+    adCompleted?: boolean;
 };
 
 export enum MediaContentType {
@@ -245,6 +267,39 @@ export const ValidMediaAttributeKeys: { [key: string]: string } = {
     segmentTitle: 'segment_title',
     segmentIndex: 'segment_index',
     segmentDuration: 'segment_duration',
+
+    // Session Summary Attributes
+    mediaSessionIdKey: 'media_session_id',
+    startTimestampKey: 'media_session_start_time',
+    endTimestampKey: 'media_session_end_time',
+    contentIdKey: 'content_id',
+    contentTitleKey: 'content_title',
+    mediaTimeSpentKey: 'media_time_spent',
+    contentTimeSpentKey: 'media_content_time_spent',
+    contentCompleteKey: 'media_content_complete',
+    totalSegmentsKey: 'media_session_segment_total',
+    totalAdTimeSpentKey: 'media_total_ad_time_spent',
+    adTimeSpentRateKey: 'media_ad_time_spent_rate',
+    totalAdsKey: 'media_session_ad_total',
+    adIDsKey: 'media_session_ad_objects',
+
+    // Ad Summary Attributes
+    adBreakIdKey: 'ad_break_id',
+    adContentIdKey: 'ad_content_id',
+    adContentStartTimestampKey: 'ad_content_start_time',
+    adContentEndTimestampKey: 'ad_content_end_time',
+    adContentTitleKey: 'ad_content_title',
+    adContentSkippedKey: 'ad_skipped',
+    adContentCompletedKey: 'ad_completed',
+
+    // Segment Summary Attributes
+    segmentIndexKey: 'segment_index',
+    segmentTitleKey: 'segment_title',
+    segmentStartTimestampKey: 'segment_start_time',
+    segmentEndTimestampKey: 'segment_end_time',
+    segmentTimeSpentKey: 'media_segment_time_spent',
+    segmentSkippedKey: 'segment_skipped',
+    segmentCompletedKey: 'segment_completed',
 };
 
 /**
@@ -311,6 +366,22 @@ export type Segment = {
      * Length of time of the segment
      */
     duration: number;
+    /**
+     * Timestamp for Segment start playback
+     */
+    segmentStartTimestamp?: number;
+    /**
+     * Timestamp for Segment end playback
+     */
+    segmentEndTimestamp?: number;
+    /**
+     * Flag for if the Sement was skipped
+     */
+    segmentSkipped?: boolean;
+    /**
+     * Flag for if the Segment was completed
+     */
+    segmentCompleted?: boolean;
 };
 
 /**

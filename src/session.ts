@@ -14,6 +14,7 @@ import {
     ModelAttributes,
     PageEventObject,
     Options,
+    ValidMediaAttributeKeys,
 } from './types';
 
 import { uuid } from './utils';
@@ -88,6 +89,37 @@ export class MediaSession {
 
     private customAttributes: ModelAttributes = {};
 
+    private mediaSessionStartTimestamp = Date.now(); //Timestamp created on logMediaSessionStart event
+    private mediaSessionEndTimestamp = Date.now(); //Timestamp updated when any event is loggged
+    private mediaTimeSpent() {
+        return this.mediaSessionEndTimestamp - this.mediaSessionStartTimestamp;
+    }
+    private currentPlaybackStartTimestamp?: number; //Timestamp for beginning of current playback
+    private storedPlaybackTime = 0; //On Pause calculate playback time and clear currentPlaybackTime
+    private mediaContentTimeSpent() {
+        if (this.currentPlaybackStartTimestamp) {
+            return (
+                this.storedPlaybackTime +
+                (Date.now() - this.currentPlaybackStartTimestamp)
+            );
+        } else {
+            return this.storedPlaybackTime;
+        }
+    }
+    mediaContentCompleteLimit = 100; //Percentage of content that must be progressed through to mark as completed
+    private mediaContentComplete = false; //Updates to true triggered by logMediaContentEnd, 0 or false if complete milestone not reached.
+    private mediaSessionSegmentTotal = 0; //number incremented with each logSegmentStart
+    private mediaTotalAdTimeSpent = 0; //total second sum of ad break time spent
+    private mediaAdTimeSpentRate() {
+        return (
+            (this.mediaTotalAdTimeSpent / this.mediaContentTimeSpent()) * 100
+        );
+    }
+    private mediaSessionAdTotal = 0; //number of ads played in the media session - increment on logAdStart
+    private mediaSessionAdObjects: string[] = []; //array of unique identifiers for ads played in the media session - append ad_content_ID on logAdStart
+
+    private sessionSummarySent = false; // Ensures we only send the summary event once
+
     /**
      * Initializes the Media Session object. This does not start a session, you can do so by calling `logMediaSessionStart`.
      * @param mparticleInstance Your mParticle global object
@@ -108,7 +140,9 @@ export class MediaSession {
         readonly streamType: MediaStreamType,
         public logPageEvent = false,
         public logMediaEvent = true
-    ) {}
+    ) {
+        this.mediaSessionStartTimestamp = Date.now();
+    }
 
     /**
      * Creates a base Media Event
@@ -147,6 +181,16 @@ export class MediaSession {
      * @param event MediaEvent
      */
     private logEvent(event: MediaEvent) {
+        this.mediaSessionEndTimestamp = Date.now();
+        if (this.mediaContentCompleteLimit !== 100) {
+            if (
+                this.duration &&
+                this.currentPlayheadPosition / this.duration >=
+                    this.mediaContentCompleteLimit / 100
+            ) {
+                this.mediaContentComplete = true;
+            }
+        }
         this.mediaEventListener(event);
 
         if (this.logMediaEvent) {
@@ -206,6 +250,7 @@ export class MediaSession {
      */
     logMediaSessionStart(options?: Options) {
         this._sessionId = uuid();
+        this.mediaSessionStartTimestamp = Date.now();
         const event = this.createMediaEvent(
             MediaEventType.SessionStart,
             options
@@ -223,6 +268,8 @@ export class MediaSession {
         const event = this.createMediaEvent(MediaEventType.SessionEnd, options);
 
         this.logEvent(event);
+
+        this.logSessionSummary();
     }
 
     /**
@@ -232,6 +279,7 @@ export class MediaSession {
      * @category Media
      */
     logMediaContentEnd(options?: Options) {
+        this.mediaContentComplete = true;
         const event = this.createMediaEvent(
             MediaEventType.MediaContentEnd,
             options
@@ -279,7 +327,10 @@ export class MediaSession {
      * @category Advertising
      */
     logAdStart(adContent: AdContent, options?: Options) {
+        this.mediaSessionAdTotal += 1;
+        this.mediaSessionAdObjects.push(adContent.id);
         this.adContent = adContent;
+        this.adContent.adStartTimestamp = Date.now();
 
         const event = this.createMediaEvent(MediaEventType.AdStart, options);
         event.adContent = adContent;
@@ -293,11 +344,19 @@ export class MediaSession {
      * @category Advertising
      */
     logAdEnd(options?: Options) {
+        if (this.adContent?.adStartTimestamp) {
+            this.adContent!.adEndTimestamp = Date.now();
+            this.adContent!.adCompleted = true;
+            this.adContent!.adSkipped = false;
+            this.mediaTotalAdTimeSpent +=
+                this.adContent!.adEndTimestamp! -
+                this.adContent!.adStartTimestamp!;
+        }
         const event = this.createMediaEvent(MediaEventType.AdEnd, options);
         event.adContent = this.adContent;
 
         this.logEvent(event);
-        this.adContent = undefined;
+        this.logAdSummary();
     }
 
     /**
@@ -306,11 +365,19 @@ export class MediaSession {
      * @category Advertising
      */
     logAdSkip(options?: Options) {
+        if (this.adContent?.adStartTimestamp) {
+            this.adContent!.adEndTimestamp = Date.now();
+            this.adContent!.adSkipped = true;
+            this.adContent!.adCompleted = false;
+            this.mediaTotalAdTimeSpent +=
+                this.adContent!.adEndTimestamp -
+                this.adContent!.adStartTimestamp;
+        }
         const event = this.createMediaEvent(MediaEventType.AdSkip, options);
         event.adContent = this.adContent;
 
         this.logEvent(event);
-        this.adContent = undefined;
+        this.logAdSummary();
     }
 
     /**
@@ -381,6 +448,10 @@ export class MediaSession {
      * @category Media
      */
     logPlay(options?: Options) {
+        if (!this.currentPlaybackStartTimestamp) {
+            this.currentPlaybackStartTimestamp = Date.now();
+        }
+
         const event = this.createMediaEvent(MediaEventType.Play, options);
         this.logEvent(event);
     }
@@ -391,6 +462,13 @@ export class MediaSession {
      * @category Media
      */
     logPause(options?: Options) {
+        if (this.currentPlaybackStartTimestamp) {
+            this.storedPlaybackTime =
+                this.storedPlaybackTime +
+                (Date.now() - this.currentPlaybackStartTimestamp);
+            this.currentPlaybackStartTimestamp = undefined;
+        }
+
         const event = this.createMediaEvent(MediaEventType.Pause, options);
         this.logEvent(event);
     }
@@ -402,6 +480,9 @@ export class MediaSession {
      * @category Media
      */
     logSegmentStart(segment: Segment, options?: Options) {
+        this.mediaSessionSegmentTotal += 1;
+        segment.segmentStartTimestamp = Date.now();
+        this.segment = segment;
         const event = this.createMediaEvent(
             MediaEventType.SegmentStart,
             options
@@ -410,7 +491,6 @@ export class MediaSession {
         event.segment = segment;
 
         this.logEvent(event);
-        this.segment = segment;
     }
 
     /**
@@ -419,11 +499,17 @@ export class MediaSession {
      * @category Media
      */
     logSegmentEnd(options?: Options) {
+        if (this.segment?.segmentStartTimestamp) {
+            this.segment!.segmentEndTimestamp = Date.now();
+            this.segment!.segmentCompleted = true;
+            this.segment!.segmentSkipped = false;
+        }
+
         const event = this.createMediaEvent(MediaEventType.SegmentEnd, options);
         event.segment = this.segment;
 
         this.logEvent(event);
-        this.segment = undefined;
+        this.logSegmentSummary();
     }
 
     /**
@@ -432,13 +518,19 @@ export class MediaSession {
      * @category Media
      */
     logSegmentSkip(options?: Options) {
+        if (this.segment?.segmentStartTimestamp) {
+            this.segment!.segmentEndTimestamp = Date.now();
+            this.segment!.segmentSkipped = true;
+            this.segment!.segmentCompleted = false;
+        }
+
         const event = this.createMediaEvent(
             MediaEventType.SegmentSkip,
             options
         );
         event.segment = this.segment;
         this.logEvent(event);
-        this.segment = undefined;
+        this.logSegmentSummary();
     }
 
     /**
@@ -543,7 +635,7 @@ export class MediaSession {
      * const mediaSession = new MediaSession(
      *     mParticle,
      *     title = "Media Title"
-     *     mediaContentId = "123"
+     *     contentId = "123"
      *     duration = 1000
      *     streamType = StreamType.LiveStream
      *     contentType = ContentType.Video
@@ -577,4 +669,165 @@ export class MediaSession {
         this.listenerCallback = callback;
     }
     private listenerCallback: MediaEventCallback = () => {};
+
+    private logSessionSummary() {
+        if (!this.sessionSummarySent) {
+            if (!this.mediaSessionEndTimestamp) {
+                this.mediaSessionEndTimestamp = Date.now();
+            }
+            // tslint:disable-next-line: no-any
+            const customAttributes: Record<string, any> = {};
+            customAttributes[
+                ValidMediaAttributeKeys.mediaSessionIdKey
+            ] = this.sessionId;
+            customAttributes[
+                ValidMediaAttributeKeys.startTimestampKey
+            ] = this.mediaSessionStartTimestamp;
+            customAttributes[
+                ValidMediaAttributeKeys.endTimestampKey
+            ] = this.mediaSessionEndTimestamp;
+            customAttributes[
+                ValidMediaAttributeKeys.contentIdKey
+            ] = this.contentId;
+            customAttributes[
+                ValidMediaAttributeKeys.contentTitleKey
+            ] = this.title;
+            customAttributes[
+                ValidMediaAttributeKeys.mediaTimeSpentKey
+            ] = this.mediaTimeSpent();
+            customAttributes[
+                ValidMediaAttributeKeys.contentTimeSpentKey
+            ] = this.mediaContentTimeSpent();
+            customAttributes[
+                ValidMediaAttributeKeys.contentCompleteKey
+            ] = this.mediaContentComplete;
+            customAttributes[
+                ValidMediaAttributeKeys.totalSegmentsKey
+            ] = this.mediaSessionSegmentTotal;
+            customAttributes[
+                ValidMediaAttributeKeys.totalAdTimeSpentKey
+            ] = this.mediaTotalAdTimeSpent;
+            customAttributes[
+                ValidMediaAttributeKeys.adTimeSpentRateKey
+            ] = this.mediaAdTimeSpentRate();
+            customAttributes[
+                ValidMediaAttributeKeys.totalAdsKey
+            ] = this.mediaSessionAdTotal;
+            customAttributes[
+                ValidMediaAttributeKeys.adIDsKey
+            ] = this.mediaSessionAdObjects;
+
+            const options: Options = {
+                currentPlayheadPosition: this.currentPlayheadPosition,
+                customAttributes,
+            };
+            const summaryEvent = this.createMediaEvent(
+                MediaEventType.SessionSummary,
+                options
+            );
+            this.logEvent(summaryEvent);
+
+            this.sessionSummarySent = true;
+        }
+    }
+
+    private logSegmentSummary() {
+        if (this.segment?.segmentStartTimestamp) {
+            if (!this.segment.segmentEndTimestamp) {
+                this.segment.segmentEndTimestamp = Date.now();
+            }
+
+            // tslint:disable-next-line: no-any
+            const customAttributes: Record<string, any> = {};
+            customAttributes[
+                ValidMediaAttributeKeys.mediaSessionIdKey
+            ] = this.sessionId;
+            customAttributes[
+                ValidMediaAttributeKeys.contentId
+            ] = this.contentId;
+            customAttributes[
+                ValidMediaAttributeKeys.segmentIndexKey
+            ] = this.segment.index;
+            customAttributes[
+                ValidMediaAttributeKeys.segmentTitleKey
+            ] = this.segment.title;
+            customAttributes[
+                ValidMediaAttributeKeys.segmentStartTimestampKey
+            ] = this.segment.segmentStartTimestamp;
+            customAttributes[
+                ValidMediaAttributeKeys.segmentEndTimestampKey
+            ] = this.segment.segmentEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.segmentTimeSpentKey] =
+                this.segment.segmentEndTimestamp! -
+                this.segment.segmentStartTimestamp;
+            customAttributes[
+                ValidMediaAttributeKeys.segmentSkippedKey
+            ] = this.segment.segmentSkipped;
+            customAttributes[
+                ValidMediaAttributeKeys.segmentCompletedKey
+            ] = this.segment.segmentCompleted;
+
+            const options: Options = {
+                currentPlayheadPosition: this.currentPlayheadPosition,
+                customAttributes,
+            };
+            const summaryEvent = this.createMediaEvent(
+                MediaEventType.SegmentSummary,
+                options
+            );
+            this.logEvent(summaryEvent);
+        }
+
+        this.segment = undefined;
+    }
+
+    private logAdSummary() {
+        if (this.adContent) {
+            if (this.adContent.adStartTimestamp) {
+                this.adContent.adEndTimestamp = Date.now();
+                this.mediaTotalAdTimeSpent +=
+                    this.adContent.adEndTimestamp -
+                    this.adContent.adStartTimestamp;
+            }
+
+            // tslint:disable-next-line: no-any
+            const customAttributes: Record<string, any> = {};
+            customAttributes[
+                ValidMediaAttributeKeys.mediaSessionIdKey
+            ] = this.sessionId;
+            customAttributes[
+                ValidMediaAttributeKeys.adBreakIdKey
+            ] = this.adBreak?.id;
+            customAttributes[
+                ValidMediaAttributeKeys.adContentIdKey
+            ] = this.adContent?.id;
+            customAttributes[
+                ValidMediaAttributeKeys.adContentStartTimestampKey
+            ] = this.adContent?.adStartTimestamp;
+            customAttributes[
+                ValidMediaAttributeKeys.adContentEndTimestampKey
+            ] = this.adContent?.adEndTimestamp;
+            customAttributes[
+                ValidMediaAttributeKeys.adContentTitleKey
+            ] = this.adContent?.title;
+            customAttributes[
+                ValidMediaAttributeKeys.adContentSkippedKey
+            ] = this.adContent?.adSkipped;
+            customAttributes[
+                ValidMediaAttributeKeys.adContentCompletedKey
+            ] = this.adContent?.adCompleted;
+
+            const options: Options = {
+                currentPlayheadPosition: this.currentPlayheadPosition,
+                customAttributes,
+            };
+            const summaryEvent = this.createMediaEvent(
+                MediaEventType.AdSummary,
+                options
+            );
+            this.logEvent(summaryEvent);
+        }
+
+        this.adContent = undefined;
+    }
 }
