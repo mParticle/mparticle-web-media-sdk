@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.4.2 - 2020-08-24
+
+-   Add Add new StreamTypes
+
 #### 1.4.1 - 2020-06-24
 
 -   Add Summary Events
