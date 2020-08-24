@@ -386,7 +386,6 @@ describe('TS Integration Tests', () => {
             expect(bond.args[3][0].name).to.eq('Ad End');
             expect(bond.args[4][0].name).to.eq('Media Ad Summary');
 
-            console.log(bond.args[4][0]);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.mediaSessionIdKey

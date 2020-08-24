@@ -157,6 +157,9 @@ export enum MediaContentType {
 export enum MediaStreamType {
     LiveStream = 'LiveStream',
     OnDemand = 'OnDemand',
+    Linear = 'Linear',
+    Podcast = 'Podcast',
+    Audiobook = 'Audiobook',
 }
 
 /**
