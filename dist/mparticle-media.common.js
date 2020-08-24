@@ -111,6 +111,9 @@ var MediaStreamType;
 (function (MediaStreamType) {
     MediaStreamType["LiveStream"] = "LiveStream";
     MediaStreamType["OnDemand"] = "OnDemand";
+    MediaStreamType["Linear"] = "Linear";
+    MediaStreamType["Podcast"] = "Podcast";
+    MediaStreamType["Audiobook"] = "Audiobook";
 })(MediaStreamType || (MediaStreamType = {}));
 var ValidMediaAttributeKeys = {
     mediaSessionId: 'media_session_id',
