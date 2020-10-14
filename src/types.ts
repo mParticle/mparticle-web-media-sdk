@@ -24,7 +24,7 @@ export enum EventType {
 export enum MediaEventType {
     Play = 23,
     Pause = 24,
-    MediaContentEnd = 25,
+    ContentEnd = 25,
     SessionStart = 30,
     SessionEnd = 31,
     SeekStart = 32,
@@ -50,7 +50,7 @@ export enum MediaEventType {
 export const MediaEventName: { [key: string]: string } = {
     Play: 'Play',
     Pause: 'Pause',
-    MediaContentEnd: 'Media Content End',
+    ContentEnd: 'Media Content End',
     SessionStart: 'Media Session Start',
     SessionEnd: 'Media Session End',
     SeekStart: 'Seek Start',

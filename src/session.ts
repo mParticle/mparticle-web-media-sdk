@@ -280,10 +280,7 @@ export class MediaSession {
      */
     logMediaContentEnd(options?: Options) {
         this.mediaContentComplete = true;
-        const event = this.createMediaEvent(
-            MediaEventType.MediaContentEnd,
-            options
-        );
+        const event = this.createMediaEvent(MediaEventType.ContentEnd, options);
 
         this.logEvent(event);
     }

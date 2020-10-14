@@ -840,7 +840,7 @@ describe('MediaSession', () => {
             expect(
                 bond.args[0][0].eventType,
                 "Expected Event to be of type 'Media Content Start'"
-            ).to.eq(MediaEventType.MediaContentEnd);
+            ).to.eq(MediaEventType.ContentEnd);
             expect(
                 bond.args[0][0].messageType,
                 "Expected Event to have a messageType of 'Media'"
