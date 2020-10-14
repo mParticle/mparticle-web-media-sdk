@@ -55,7 +55,7 @@ var MediaEventType;
 (function (MediaEventType) {
     MediaEventType[MediaEventType["Play"] = 23] = "Play";
     MediaEventType[MediaEventType["Pause"] = 24] = "Pause";
-    MediaEventType[MediaEventType["MediaContentEnd"] = 25] = "MediaContentEnd";
+    MediaEventType[MediaEventType["ContentEnd"] = 25] = "ContentEnd";
     MediaEventType[MediaEventType["SessionStart"] = 30] = "SessionStart";
     MediaEventType[MediaEventType["SessionEnd"] = 31] = "SessionEnd";
     MediaEventType[MediaEventType["SeekStart"] = 32] = "SeekStart";
@@ -80,7 +80,7 @@ var MediaEventType;
 var MediaEventName = {
     Play: 'Play',
     Pause: 'Pause',
-    MediaContentEnd: 'Media Content End',
+    ContentEnd: 'Media Content End',
     SessionStart: 'Media Session Start',
     SessionEnd: 'Media Session End',
     SeekStart: 'Seek Start',
@@ -640,7 +640,7 @@ var MediaSession = /** @class */ (function () {
      */
     MediaSession.prototype.logMediaContentEnd = function (options) {
         this.mediaContentComplete = true;
-        var event = this.createMediaEvent(MediaEventType.MediaContentEnd, options);
+        var event = this.createMediaEvent(MediaEventType.ContentEnd, options);
         this.logEvent(event);
     };
     /**
