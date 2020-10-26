@@ -76,6 +76,6 @@
     },
     "dependencies": {
         "@mparticle/web-sdk": "^2.9.14-rc.1",
-        "tslib": "^1.10.0"
+        "tslib": "^2.0.3"
     }
 }
