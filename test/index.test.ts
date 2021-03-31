@@ -41,7 +41,7 @@ describe('TS Integration Tests', () => {
             song.title,
             song.duration,
             song.contentType,
-            song.streamType
+            song.streamType,
         );
     });
 
@@ -66,7 +66,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media Event Listener Callback to have beeen called'
+                'Expected Media Event Listener Callback to have beeen called',
             ).to.eq(true);
             expect(bond.callCount).to.eq(3);
 
@@ -86,7 +86,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to NOT have been called'
+                'Expected logBaseEvent to NOT have been called',
             ).to.eq(false);
 
             mpMedia.logPageEvent = true;
@@ -94,7 +94,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
         });
 
@@ -105,7 +105,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to NOT have been called'
+                'Expected logBaseEvent to NOT have been called',
             ).to.eq(false);
 
             mpMedia.logMediaEvent = true;
@@ -113,7 +113,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
         });
 
@@ -140,7 +140,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.args[0][0],
-                'Expected Media event to be an MPEvent'
+                'Expected Media event to be an MPEvent',
             ).to.eqls(expectedObject);
         });
 
@@ -152,7 +152,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media event NOT call Updated Playhead Position'
+                'Expected Media event NOT call Updated Playhead Position',
             ).to.eq(false);
         });
 
@@ -189,7 +189,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media Event Listener Callback to have beeen called'
+                'Expected Media Event Listener Callback to have beeen called',
             ).to.eq(true);
             expect(bond.callCount).to.eq(10);
 
@@ -207,67 +207,67 @@ describe('TS Integration Tests', () => {
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.mediaSessionIdKey
-                ]
+                ],
             ).to.eq(mpMedia.sessionId);
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.startTimestampKey
-                ]
+                ],
             );
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.endTimestampKey
-                ]
+                ],
             );
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.contentIdKey
-                ]
+                ],
             ).to.eq(mpMedia.contentId);
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.contentTitleKey
-                ]
+                ],
             ).to.eq(mpMedia.title);
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.mediaTimeSpentKey
-                ]
+                ],
             );
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.contentTimeSpentKey
-                ]
+                ],
             );
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.contentCompleteKey
-                ]
+                ],
             ).to.eq(false);
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.totalSegmentsKey
-                ]
+                ],
             ).to.eq(1);
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.totalAdTimeSpentKey
-                ]
+                ],
             );
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.adTimeSpentRateKey
-                ]
+                ],
             );
             expect(
                 bond.args[9][0].customAttributes[
                     ValidMediaAttributeKeys.totalAdsKey
-                ]
+                ],
             ).to.eq(1);
             expect(
                 bond.args[3][0].customAttributes[
                     ValidMediaAttributeKeys.adIDsKey
-                ]
+                ],
             );
 
             bond.args.forEach(arg => {
@@ -292,7 +292,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media Event Listener Callback to have beeen called'
+                'Expected Media Event Listener Callback to have beeen called',
             ).to.eq(true);
             expect(bond.callCount).to.eq(5);
 
@@ -305,47 +305,47 @@ describe('TS Integration Tests', () => {
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.mediaSessionIdKey
-                ]
+                ],
             ).to.eq(mpMedia.sessionId);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.contentIdKey
-                ]
+                ],
             ).to.eq(mpMedia.contentId);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentIndexKey
-                ]
+                ],
             ).to.eq(0);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentTitleKey
-                ]
+                ],
             ).to.eq('The Gang Write Some Code');
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentStartTimestampKey
-                ]
+                ],
             );
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentEndTimestampKey
-                ]
+                ],
             );
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentTimeSpentKey
-                ]
+                ],
             );
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentSkippedKey
-                ]
+                ],
             ).to.eq(false);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentCompletedKey
-                ]
+                ],
             ).to.eq(true);
 
             bond.args.forEach(arg => {
@@ -376,7 +376,7 @@ describe('TS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media Event Listener Callback to have beeen called'
+                'Expected Media Event Listener Callback to have beeen called',
             ).to.eq(true);
             expect(bond.callCount).to.eq(5);
 
@@ -389,47 +389,47 @@ describe('TS Integration Tests', () => {
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.mediaSessionIdKey
-                ]
+                ],
             ).to.eq(mpMedia.sessionId);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adBreakIdKey
-                ]
+                ],
             ).to.eq(undefined);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adContentIdKey
-                ]
+                ],
             ).to.eq(adContent.id);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adContentTitleKey
-                ]
+                ],
             ).to.eq(adContent.title);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adContentStartTimestampKey
-                ]
+                ],
             );
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adContentEndTimestampKey
-                ]
+                ],
             );
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.segmentTimeSpentKey
-                ]
+                ],
             );
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adContentSkippedKey
-                ]
+                ],
             ).to.eq(false);
             expect(
                 bond.args[4][0].customAttributes[
                     ValidMediaAttributeKeys.adContentCompletedKey
-                ]
+                ],
             ).to.eq(true);
 
             bond.args.forEach(arg => {
@@ -454,7 +454,7 @@ describe('TS Integration Tests', () => {
                 expect(mpMedia.getAttributes().playhead_position).equal(60);
                 expect(
                     bond.args[0][0].playheadPosition,
-                    'Logging playhead position should persist'
+                    'Logging playhead position should persist',
                 ).equal(60);
 
                 mpMedia.logPlay({ currentPlayheadPosition: 97 });
@@ -462,14 +462,14 @@ describe('TS Integration Tests', () => {
                 expect(mpMedia.getAttributes().playhead_position).equal(97);
                 expect(
                     bond.args[1][0].playheadPosition,
-                    'Passing playhead position as option should persist'
+                    'Passing playhead position as option should persist',
                 ).equal(97);
 
                 mpMedia.logPause();
                 expect(mpMedia.getAttributes().playhead_position).equal(97);
                 expect(
                     bond.args[2][0].playheadPosition,
-                    'Playhead position from session should persist'
+                    'Playhead position from session should persist',
                 ).equal(97);
             });
         });

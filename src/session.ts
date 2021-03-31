@@ -139,7 +139,7 @@ export class MediaSession {
         readonly contentType: MediaContentType,
         readonly streamType: MediaStreamType,
         public logPageEvent = false,
-        public logMediaEvent = true
+        public logMediaEvent = true,
     ) {
         this.mediaSessionStartTimestamp = Date.now();
     }
@@ -151,7 +151,7 @@ export class MediaSession {
      */
     private createMediaEvent(
         eventType: MediaEventType,
-        options: Options = {}
+        options: Options = {},
     ): MediaEvent {
         // Set event option based on options or current state
         this.currentPlayheadPosition =
@@ -172,7 +172,7 @@ export class MediaSession {
             this.contentType,
             this.streamType,
             this.sessionId,
-            options
+            options,
         );
     }
 
@@ -253,7 +253,7 @@ export class MediaSession {
         this.mediaSessionStartTimestamp = Date.now();
         const event = this.createMediaEvent(
             MediaEventType.SessionStart,
-            options
+            options,
         );
 
         this.logEvent(event);
@@ -296,7 +296,7 @@ export class MediaSession {
 
         const event = this.createMediaEvent(
             MediaEventType.AdBreakStart,
-            options
+            options,
         );
 
         event.adBreak = adBreakContent;
@@ -402,11 +402,11 @@ export class MediaSession {
         bufferDuration: number,
         bufferPercent: number,
         bufferPosition: number,
-        options?: Options
+        options?: Options,
     ) {
         const event = this.createMediaEvent(
             MediaEventType.BufferStart,
-            options
+            options,
         );
 
         event.bufferDuration = bufferDuration;
@@ -428,7 +428,7 @@ export class MediaSession {
         bufferDuration: number,
         bufferPercent: number,
         bufferPosition: number,
-        options?: Options
+        options?: Options,
     ) {
         const event = this.createMediaEvent(MediaEventType.BufferEnd, options);
 
@@ -482,7 +482,7 @@ export class MediaSession {
         this.segment = segment;
         const event = this.createMediaEvent(
             MediaEventType.SegmentStart,
-            options
+            options,
         );
 
         event.segment = segment;
@@ -523,7 +523,7 @@ export class MediaSession {
 
         const event = this.createMediaEvent(
             MediaEventType.SegmentSkip,
-            options
+            options,
         );
         event.segment = this.segment;
         this.logEvent(event);
@@ -566,7 +566,7 @@ export class MediaSession {
     logPlayheadPosition(playheadPosition: number) {
         this.currentPlayheadPosition = playheadPosition;
         const event = this.createMediaEvent(
-            MediaEventType.UpdatePlayheadPosition
+            MediaEventType.UpdatePlayheadPosition,
         );
 
         event.playheadPosition = playheadPosition;
@@ -610,7 +610,7 @@ export class MediaSession {
      */
     createPageEvent(
         eventName: string,
-        attributes: ModelAttributes
+        attributes: ModelAttributes,
     ): PageEventObject {
         return {
             name: eventName,
@@ -720,7 +720,7 @@ export class MediaSession {
             };
             const summaryEvent = this.createMediaEvent(
                 MediaEventType.SessionSummary,
-                options
+                options,
             );
             this.logEvent(summaryEvent);
 
@@ -770,7 +770,7 @@ export class MediaSession {
             };
             const summaryEvent = this.createMediaEvent(
                 MediaEventType.SegmentSummary,
-                options
+                options,
             );
             this.logEvent(summaryEvent);
         }
@@ -820,7 +820,7 @@ export class MediaSession {
             };
             const summaryEvent = this.createMediaEvent(
                 MediaEventType.AdSummary,
-                options
+                options,
             );
             this.logEvent(summaryEvent);
         }

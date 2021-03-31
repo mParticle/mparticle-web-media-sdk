@@ -26,7 +26,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             expect(mediaEvent.toPageEvent()).to.eql({
@@ -68,7 +68,7 @@ describe('MediaEvent', () => {
                 song.contentType,
                 song.streamType,
                 '1234567890',
-                options
+                options,
             );
 
             expect(mediaEvent.toPageEvent()).to.eql({
@@ -109,7 +109,7 @@ describe('MediaEvent', () => {
                 song.contentType,
                 song.streamType,
                 '1234567890',
-                options
+                options,
             );
 
             expect(mediaEvent.playheadPosition).to.eq(42);
@@ -132,7 +132,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             mediaEvent.playheadPosition = 10;
@@ -171,7 +171,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             mediaEvent.seekPosition = 7;
@@ -210,7 +210,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             mediaEvent.bufferDuration = 120;
@@ -253,7 +253,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             const qos = {
@@ -301,7 +301,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             const adBreak = {
@@ -348,7 +348,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             const adContent = {
@@ -408,7 +408,7 @@ describe('MediaEvent', () => {
                 song.duration,
                 song.contentType,
                 song.streamType,
-                '1234567890'
+                '1234567890',
             );
 
             const segment = {
@@ -464,7 +464,7 @@ describe('MediaEvent', () => {
                 song.contentType,
                 song.streamType,
                 '1234567890',
-                options
+                options,
             );
 
             const expectedObject = {
@@ -513,7 +513,7 @@ describe('MediaEvent', () => {
                 song.contentType,
                 song.streamType,
                 '1234567890',
-                options
+                options,
             );
 
             mediaEvent.bufferDuration = 120;

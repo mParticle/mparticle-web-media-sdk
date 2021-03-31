@@ -1,0 +1,12 @@
+{
+    "extends": "./node_modules/gts/",
+    "globals": {
+        "it": true,
+        "describe": true,
+        "beforeEach": true,
+        "afterEach": true
+    },
+    "parserOptions": {
+        "sourceType": "script"
+    }
+}

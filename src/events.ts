@@ -31,7 +31,7 @@ export abstract class BaseEvent {
     constructor(
         public name: string,
         public eventType: number,
-        public messageType: MessageType
+        public messageType: MessageType,
     ) {}
 
     /**
@@ -87,7 +87,7 @@ export class MediaEvent extends BaseEvent {
         readonly contentType: MediaContentType,
         readonly streamType: MediaStreamType,
         readonly mediaSessionID: string,
-        public options: Options = {}
+        public options: Options = {},
     ) {
         super(getNameFromType(eventType), eventType, MessageType.Media);
 

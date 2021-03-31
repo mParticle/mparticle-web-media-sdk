@@ -43,7 +43,7 @@ describe('MediaSession', () => {
             song.title,
             song.duration,
             song.contentType,
-            song.streamType
+            song.streamType,
         );
     });
 
@@ -65,19 +65,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Ad Break Start'"
+                "Expected Event to be of type 'Ad Break Start'",
             ).to.eq(MediaEventType.AdBreakStart);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].adBreak,
-                'Expected valid AdBreak object within payload'
+                'Expected valid AdBreak object within payload',
             ).to.eql(adBreak);
         });
 
@@ -114,7 +114,7 @@ describe('MediaSession', () => {
             mpMedia.logAdBreakStart(adBreak, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
 
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -136,19 +136,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Ad Break End'"
+                "Expected Event to be of type 'Ad Break End'",
             ).to.eq(MediaEventType.AdBreakEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].adBreak,
-                'Expected valid AdBreak object within payload'
+                'Expected valid AdBreak object within payload',
             ).to.eql(adBreak);
         });
 
@@ -178,7 +178,7 @@ describe('MediaSession', () => {
             mpMedia.logAdBreakEnd(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -204,19 +204,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Ad Start'"
+                "Expected Event to be of type 'Ad Start'",
             ).to.eq(MediaEventType.AdStart);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].adContent,
-                'Expected to have a valid Ad Content Payload'
+                'Expected to have a valid Ad Content Payload',
             ).to.eql(adContent);
         });
 
@@ -263,7 +263,7 @@ describe('MediaSession', () => {
             mpMedia.logAdStart(adContent, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -290,20 +290,20 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Ad End'"
+                "Expected Event to be of type 'Ad End'",
             ).to.eq(MediaEventType.AdEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
 
             expect(
                 bond.args[0][0].adContent,
-                'Expected valid Ad Content in payload'
+                'Expected valid Ad Content in payload',
             ).to.eql(adContent);
         });
 
@@ -339,7 +339,7 @@ describe('MediaSession', () => {
             mpMedia.logAdEnd(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -366,19 +366,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Ad Skip'"
+                "Expected Event to be of type 'Ad Skip'",
             ).to.eq(MediaEventType.AdSkip);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].adContent,
-                'Expected to have a valid Ad Content Payload'
+                'Expected to have a valid Ad Content Payload',
             ).to.eql(adContent);
         });
 
@@ -414,7 +414,7 @@ describe('MediaSession', () => {
             mpMedia.logAdSkip(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -440,19 +440,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Ad Click'"
+                "Expected Event to be of type 'Ad Click'",
             ).to.eq(MediaEventType.AdClick);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].adContent,
-                'Expected to have a valid Ad Content Payload'
+                'Expected to have a valid Ad Content Payload',
             ).to.eql(adContent);
         });
 
@@ -481,7 +481,7 @@ describe('MediaSession', () => {
             mpMedia.logAdClick(adContent, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -494,16 +494,16 @@ describe('MediaSession', () => {
             mpMedia.logBufferStart(320, 20, 201);
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
 
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Buffer Start'"
+                "Expected Event to be of type 'Buffer Start'",
             ).to.eq(MediaEventType.BufferStart);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(bond.args[0][0].bufferDuration).to.eq(320);
             expect(bond.args[0][0].bufferPercent).to.eq(20);
@@ -523,7 +523,7 @@ describe('MediaSession', () => {
             mpMedia.logBufferStart(320, 20, 201, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -537,15 +537,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Buffer End'"
+                "Expected Event to be of type 'Buffer End'",
             ).to.eq(MediaEventType.BufferEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(bond.args[0][0].bufferDuration).to.eq(99);
             expect(bond.args[0][0].bufferPercent).to.eq(2);
@@ -565,7 +565,7 @@ describe('MediaSession', () => {
             mpMedia.logBufferEnd(99, 2, 341, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -579,15 +579,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Seek Start'"
+                "Expected Event to be of type 'Seek Start'",
             ).to.eq(MediaEventType.SeekStart);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(bond.args[0][0].seekPosition).to.eq(421);
         });
@@ -605,7 +605,7 @@ describe('MediaSession', () => {
             mpMedia.logSeekStart(341, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -619,15 +619,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Seek End'"
+                "Expected Event to be of type 'Seek End'",
             ).to.eq(MediaEventType.SeekEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(bond.args[0][0].seekPosition).to.eq(999);
         });
@@ -645,7 +645,7 @@ describe('MediaSession', () => {
             mpMedia.logSeekEnd(111, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -659,15 +659,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Playhead Position'"
+                "Expected Event to be of type 'Playhead Position'",
             ).to.eq(MediaEventType.UpdatePlayheadPosition);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(bond.args[0][0].playheadPosition).to.eq(1234);
         });
@@ -681,15 +681,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Media Start'"
+                "Expected Event to be of type 'Media Start'",
             ).to.eq(MediaEventType.SessionStart);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
         });
 
@@ -706,7 +706,7 @@ describe('MediaSession', () => {
             mpMedia.logMediaSessionStart(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -720,15 +720,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Media End'"
+                "Expected Event to be of type 'Media End'",
             ).to.eq(MediaEventType.SessionEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
         });
 
@@ -745,7 +745,7 @@ describe('MediaSession', () => {
             mpMedia.logMediaSessionEnd(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -759,15 +759,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Play'"
+                "Expected Event to be of type 'Play'",
             ).to.eq(MediaEventType.Play);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
         });
 
@@ -783,7 +783,7 @@ describe('MediaSession', () => {
             mpMedia.logPlay(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -797,15 +797,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Pause'"
+                "Expected Event to be of type 'Pause'",
             ).to.eq(MediaEventType.Pause);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
         });
 
@@ -821,7 +821,7 @@ describe('MediaSession', () => {
             mpMedia.logPause(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -835,15 +835,15 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Media Content Start'"
+                "Expected Event to be of type 'Media Content Start'",
             ).to.eq(MediaEventType.ContentEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
         });
 
@@ -859,7 +859,7 @@ describe('MediaSession', () => {
             mpMedia.logMediaContentEnd(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -879,19 +879,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Segment Start'"
+                "Expected Event to be of type 'Segment Start'",
             ).to.eq(MediaEventType.SegmentStart);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].segment,
-                'Expect to have a valid Segment'
+                'Expect to have a valid Segment',
             ).to.eql(segment);
         });
 
@@ -925,7 +925,7 @@ describe('MediaSession', () => {
             mpMedia.logSegmentStart(segment, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -946,19 +946,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Segment End'"
+                "Expected Event to be of type 'Segment End'",
             ).to.eq(MediaEventType.SegmentEnd);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].segment,
-                'Expect to have a valid Segment'
+                'Expect to have a valid Segment',
             ).to.eql(segment);
         });
 
@@ -988,7 +988,7 @@ describe('MediaSession', () => {
             mpMedia.logSegmentEnd(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -1009,19 +1009,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'Segment Skip'"
+                "Expected Event to be of type 'Segment Skip'",
             ).to.eq(MediaEventType.SegmentSkip);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].segment,
-                'Expect to have a valid Segment'
+                'Expect to have a valid Segment',
             ).to.eql(segment);
         });
 
@@ -1050,7 +1050,7 @@ describe('MediaSession', () => {
             mpMedia.logSegmentSkip(options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
@@ -1075,19 +1075,19 @@ describe('MediaSession', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
             expect(
                 bond.args[0][0].eventType,
-                "Expected Event to be of type 'QoS'"
+                "Expected Event to be of type 'QoS'",
             ).to.eq(MediaEventType.UpdateQoS);
             expect(
                 bond.args[0][0].messageType,
-                "Expected Event to have a messageType of 'Media'"
+                "Expected Event to have a messageType of 'Media'",
             ).to.eq(MessageType.Media);
             expect(
                 bond.args[0][0].qos,
-                'Expect to have a valid QoS object'
+                'Expect to have a valid QoS object',
             ).to.eql(qos);
         });
 
@@ -1145,11 +1145,11 @@ describe('MediaSession', () => {
             mpMedia.logQoS(qos, options);
 
             expect(bond.args[0][0].options.customAttributes).to.eq(
-                options.customAttributes
+                options.customAttributes,
             );
 
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(
-                options.currentPlayheadPosition
+                options.currentPlayheadPosition,
             );
         });
     });
