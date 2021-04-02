@@ -11,8 +11,8 @@ describe('JS Integration Tests', () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         mp = {
-            logBaseEvent: event => {},
-            logger: message => {},
+            logBaseEvent: (event) => {},
+            logger: (message) => {},
         };
 
         song = {
@@ -116,7 +116,6 @@ describe('JS Integration Tests', () => {
                     content_duration: 120000,
                     content_type: 'Video',
                     stream_type: 'OnDemand',
-                    playhead_position: 0,
                     media_session_id: mpMedia.sessionId,
                 },
             };
@@ -143,14 +142,16 @@ describe('JS Integration Tests', () => {
     describe('Properties', () => {
         describe('currentPlayheadPosition', () => {
             it('should update via custom attributes', () => {
-                expect(mpMedia.getAttributes().playhead_position).equal(0);
+                expect(mpMedia.getAttributes().playhead_position).to.be
+                    .undefined;
                 mpMedia.logPlay({ currentPlayheadPosition: 42 });
                 expect(mpMedia.getAttributes().playhead_position).equal(42);
             });
 
             it('should maintain playhead position for every log method', () => {
                 const bond = sinon.spy(mp, 'logBaseEvent');
-                expect(mpMedia.getAttributes().playhead_position).equal(0);
+                expect(mpMedia.getAttributes().playhead_position).to.be
+                    .undefined;
 
                 mpMedia.logPlayheadPosition(60);
                 expect(mpMedia.getAttributes().playhead_position).equal(60);

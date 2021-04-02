@@ -673,7 +673,7 @@ describe('MediaSession', () => {
         });
     });
 
-    describe('#LogMediaSessionStart', () => {
+    describe('#logMediaSessionStart', () => {
         it('should call core.logBaseEvent with a valid payload', () => {
             const bond = sinon.spy(mp, 'logBaseEvent');
 
@@ -712,7 +712,7 @@ describe('MediaSession', () => {
         });
     });
 
-    describe('#LogMediaEnd', () => {
+    describe('#logMediaSessionEnd', () => {
         it('should call core.logBaseEvent with a valid payload', () => {
             const bond = sinon.spy(mp, 'logBaseEvent');
 
@@ -748,6 +748,62 @@ describe('MediaSession', () => {
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
+        });
+
+        it('returns false if media is not complete', () => {
+            const bond = sinon.fake();
+
+            const finiteMediaObject = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType
+            );
+
+            finiteMediaObject.mediaEventListener = bond;
+            finiteMediaObject.mediaContentCompleteLimit = 50;
+
+            finiteMediaObject.logMediaSessionStart();
+            finiteMediaObject.logPlay();
+            finiteMediaObject.logPlayheadPosition(song.duration / 4);
+
+            // Intentionally firing without logMediaContentComplete
+            // to test calculation in logEvent
+            finiteMediaObject.logMediaSessionEnd();
+
+            expect(bond.args[4][0].customAttributes.media_content_complete).to
+                .be.false;
+        });
+
+        it('returns true if media mediaContentCompletLimit is reached', () => {
+            const bond = sinon.fake();
+
+            const finiteMediaObject = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType
+            );
+
+            finiteMediaObject.mediaEventListener = bond;
+            finiteMediaObject.mediaContentCompleteLimit = 50;
+
+            finiteMediaObject.logMediaSessionStart();
+            finiteMediaObject.logPlay();
+
+            // Assume 60% has played
+            finiteMediaObject.logPlayheadPosition(song.duration * 0.6);
+
+            // Intentionally firing without logMediaContentComplete
+            // to test calculation in logEvent
+            finiteMediaObject.logMediaSessionEnd();
+
+            expect(bond.args[4][0].customAttributes.media_content_complete).to
+                .be.true;
         });
     });
 
@@ -1172,7 +1228,6 @@ describe('MediaSession', () => {
                     content_type: 'Video',
                     stream_type: 'OnDemand',
                     media_session_id: '', // Media Session ID is a blank uuid that gets set on Media Session Start
-                    playhead_position: 0,
                     reached: '95%',
                     integerValue: 201,
                 },

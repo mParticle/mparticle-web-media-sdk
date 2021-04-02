@@ -78,7 +78,7 @@ export class MediaSession {
     }
     private _sessionId = '';
 
-    private currentPlayheadPosition = 0;
+    private currentPlayheadPosition?: number;
 
     private currentQoS: QoS = {
         startupTime: 0,
@@ -185,12 +185,14 @@ export class MediaSession {
         if (this.mediaContentCompleteLimit !== 100) {
             if (
                 this.duration &&
+                this.currentPlayheadPosition &&
                 this.currentPlayheadPosition / this.duration >=
                     this.mediaContentCompleteLimit / 100
             ) {
                 this.mediaContentComplete = true;
             }
         }
+
         this.mediaEventListener(event);
 
         if (this.logMediaEvent) {
@@ -232,15 +234,20 @@ export class MediaSession {
      * Returns session attributes as a flat object
      */
     getAttributes(): ModelAttributes {
-        return {
+        const attributes: ModelAttributes = {
             content_title: this.title,
             content_duration: this.duration,
             content_id: this.contentId,
             content_type: MediaContentType[this.contentType],
             stream_type: MediaStreamType[this.streamType],
-            playhead_position: this.currentPlayheadPosition,
             media_session_id: this.sessionId,
         };
+
+        if (this.currentPlayheadPosition) {
+            attributes['playhead_position'] = this.currentPlayheadPosition;
+        }
+
+        return attributes;
     }
 
     /**
