@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.4.4 - 2021-04-06
+
+-   Revise playhead position to be optional and null on init
+
 #### 1.4.3 - 2020-10-09
 
 -   **DEPRECATION:** Replace MediaContentEnd with ContentEnd
