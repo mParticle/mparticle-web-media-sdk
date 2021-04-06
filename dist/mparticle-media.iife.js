@@ -2,29 +2,31 @@ var MediaSession = (function () {
     'use strict';
 
     /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
+    Copyright (c) Microsoft Corporation.
 
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
 
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
     /* global Reflect, Promise */
 
     var extendStatics = function(d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
 
     function __extends(d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -214,10 +216,6 @@ var MediaSession = (function () {
             this.name = name;
             this.eventType = eventType;
             this.messageType = messageType;
-            /**
-             * @hidden Abstract representation of a Base Event for the Server model in Core SDK
-             */
-            this.toEventAPIObject = function () { };
         }
         return BaseEvent;
     }());
@@ -250,7 +248,6 @@ var MediaSession = (function () {
          */
         function MediaEvent(eventType, contentTitle, contentId, duration, contentType, streamType, mediaSessionID, options) {
             if (options === void 0) { options = {}; }
-            var _a, _b;
             var _this = _super.call(this, getNameFromType(eventType), eventType, MessageType.Media) || this;
             _this.eventType = eventType;
             _this.contentTitle = contentTitle;
@@ -417,8 +414,8 @@ var MediaSession = (function () {
                     EventAttributes: _this.options.customAttributes,
                 };
             };
-            _this.playheadPosition = (_a = options) === null || _a === void 0 ? void 0 : _a.currentPlayheadPosition;
-            _this.customAttributes = (_b = options) === null || _b === void 0 ? void 0 : _b.customAttributes;
+            _this.playheadPosition = options === null || options === void 0 ? void 0 : options.currentPlayheadPosition;
+            _this.customAttributes = options === null || options === void 0 ? void 0 : options.customAttributes;
             return _this;
         }
         return MediaEvent;
@@ -497,7 +494,6 @@ var MediaSession = (function () {
             this.logPageEvent = logPageEvent;
             this.logMediaEvent = logMediaEvent;
             this._sessionId = '';
-            this.currentPlayheadPosition = 0;
             this.currentQoS = {
                 startupTime: 0,
                 fps: 0,
@@ -522,7 +518,7 @@ var MediaSession = (function () {
             get: function () {
                 return this._sessionId;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         MediaSession.prototype.mediaTimeSpent = function () {
@@ -547,11 +543,10 @@ var MediaSession = (function () {
          */
         MediaSession.prototype.createMediaEvent = function (eventType, options) {
             if (options === void 0) { options = {}; }
-            var _a, _b;
             // Set event option based on options or current state
             this.currentPlayheadPosition =
-                ((_a = options) === null || _a === void 0 ? void 0 : _a.currentPlayheadPosition) || this.currentPlayheadPosition;
-            this.customAttributes = ((_b = options) === null || _b === void 0 ? void 0 : _b.customAttributes) || {};
+                (options === null || options === void 0 ? void 0 : options.currentPlayheadPosition) || this.currentPlayheadPosition;
+            this.customAttributes = (options === null || options === void 0 ? void 0 : options.customAttributes) || {};
             options = __assign({ currentPlayheadPosition: this.currentPlayheadPosition, customAttributes: this.customAttributes }, options);
             return new MediaEvent(eventType, this.title, this.contentId, this.duration, this.contentType, this.streamType, this.sessionId, options);
         };
@@ -563,6 +558,7 @@ var MediaSession = (function () {
             this.mediaSessionEndTimestamp = Date.now();
             if (this.mediaContentCompleteLimit !== 100) {
                 if (this.duration &&
+                    this.currentPlayheadPosition &&
                     this.currentPlayheadPosition / this.duration >=
                         this.mediaContentCompleteLimit / 100) {
                     this.mediaContentComplete = true;
@@ -602,15 +598,18 @@ var MediaSession = (function () {
          * Returns session attributes as a flat object
          */
         MediaSession.prototype.getAttributes = function () {
-            return {
+            var attributes = {
                 content_title: this.title,
                 content_duration: this.duration,
                 content_id: this.contentId,
                 content_type: MediaContentType[this.contentType],
                 stream_type: MediaStreamType[this.streamType],
-                playhead_position: this.currentPlayheadPosition,
                 media_session_id: this.sessionId,
             };
+            if (this.currentPlayheadPosition) {
+                attributes['playhead_position'] = this.currentPlayheadPosition;
+            }
+            return attributes;
         };
         /**
          * Starts your media session. Should be triggered before any prerolls or ads
@@ -952,7 +951,7 @@ var MediaSession = (function () {
             set: function (callback) {
                 this.listenerCallback = callback;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         MediaSession.prototype.logSessionSummary = function () {
