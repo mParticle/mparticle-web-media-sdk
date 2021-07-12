@@ -121,7 +121,7 @@ const customMPEvent = MediaSession.createPageEvent('My Custom Event', {
     'custom-property': 'custom-value',
 });
 
-mParticle.logEvent(customMPEvent);
+mParticle.logBaseEvent(customMPEvent);
 ```
 
 ## Using the Event Listener
