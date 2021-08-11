@@ -1,6 +1,7 @@
 <img src="https://static.mparticle.com/sdk/mp_logo_black.svg" width="280"><br>
 
 [![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet.svg)](https://github.com/google/gts)
+
 # mParticle Web Media SDK
 
 Hello! This is the public repo of the mParticle Web Media SDK. We've built the mParticle platform to take a new approach to web and mobile app data and the platform has grown to support 200+ services and SDKs, including developer tools, analytics, attribution, messaging, and advertising services. mParticle is designed to serve as the connector between all of these services - check out [our site](http://mparticle.com), or hit us at developers@mparticle.com to learn more.
@@ -89,7 +90,7 @@ Most of our partner integrations require that a media player frequently trigger 
 The simplest method we provide is the current playhead position as a number to the `MediaSession.logPlayheadPostition()` method.
 
 ```javascript
-player.addEventListener('playheadUpdate', function(currentPlayheadPosition) {
+player.addEventListener('playheadUpdate', function (currentPlayheadPosition) {
     mediaSession.logPlayheadPosition({ options: currentPlayheadPosition });
 });
 ```
@@ -121,7 +122,7 @@ const customMPEvent = MediaSession.createPageEvent('My Custom Event', {
     'custom-property': 'custom-value',
 });
 
-mParticle.logEvent(customMPEvent);
+mParticle.logBaseEvent(customMPEvent);
 ```
 
 ## Using the Event Listener
@@ -132,7 +133,7 @@ For example, if you need to trigger a custom function when Play or Pause
 occurs:
 
 ```javascript
-const myCallback = function(event) {
+const myCallback = function (event) {
     // Some custom callback method defined by user
     // Should only trigger when play or pause is fired
     if (
