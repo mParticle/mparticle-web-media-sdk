@@ -787,7 +787,7 @@ export class MediaSession {
 
     private logAdSummary() {
         if (this.adContent) {
-            if (this.adContent.adStartTimestamp) {
+            if (this.adContent.adStartTimestamp && !this.adContent.adEndTimestamp) {
                 this.adContent.adEndTimestamp = Date.now();
                 this.mediaTotalAdTimeSpent +=
                     this.adContent.adEndTimestamp -
