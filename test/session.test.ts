@@ -14,6 +14,7 @@ import {
     Segment,
     QoS,
     EventType,
+    ValidMediaAttributeKeys,
 } from '../src/types';
 
 let sandbox: SinonSandbox;
@@ -305,6 +306,41 @@ describe('MediaSession', () => {
                 bond.args[0][0].adContent,
                 'Expected valid Ad Content in payload',
             ).to.eql(adContent);
+        });
+
+        it('should call core.logBaseEvent with an AdSummary Event with a valid payload', () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            const adContent: AdContent = {
+                id: '1121220',
+                advertiser: 'Planet Express',
+                title: 'Good News Everbody!',
+                campaign: 'Omicron Persei 8 Dinner Tours',
+                duration: 60000,
+                creative: "We'll be happy to have you for dinner",
+                siteid: 'op8',
+                placement: 'first',
+                position: 0,
+                adStartTimestamp: 201,
+            };
+
+            mpMedia.adContent = adContent;
+            mpMedia.logAdEnd();
+
+            expect(
+                bond.called,
+                'Expected logBaseEvent to have been called',
+            ).to.eq(true);
+            expect(
+                bond.args[1][0].eventType,
+                "Expected Event to be of type 'Ad Summary'",
+            ).to.eq(MediaEventType.AdSummary);
+            expect(
+                bond.args[1][0].customAttributes[
+                    ValidMediaAttributeKeys.adContentEndTimestampKey
+                ],
+                'Expected valid media adContentEndTimestampKey in payload',
+            ).to.exist;
         });
 
         it('should clear the ad content in the session', () => {
