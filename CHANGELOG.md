@@ -1,5 +1,10 @@
 ## Releases
 
+#### 1.4.5 - 2021-09-30
+
+-   Bugfix: Prevent Total Ad Time from being Doubled
+-   Clean up formatting and linting
+
 #### 1.4.4 - 2021-04-06
 
 -   Revise playhead position to be optional and null on init
