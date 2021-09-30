@@ -795,7 +795,7 @@ describe('MediaSession', () => {
                 song.title,
                 song.duration,
                 song.contentType,
-                song.streamType
+                song.streamType,
             );
 
             finiteMediaObject.mediaEventListener = bond;
@@ -822,7 +822,7 @@ describe('MediaSession', () => {
                 song.title,
                 song.duration,
                 song.contentType,
-                song.streamType
+                song.streamType,
             );
 
             finiteMediaObject.mediaEventListener = bond;

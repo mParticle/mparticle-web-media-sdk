@@ -74,7 +74,7 @@ describe('TS Integration Tests', () => {
             expect(bond.args[1][0].name).to.eq('Pause');
             expect(bond.args[2][0].name).to.eq('Buffer Start');
 
-            bond.args.forEach((arg) => {
+            bond.args.forEach(arg => {
                 expect(arg[0]).to.be.instanceOf(MediaEvent);
             });
         });
@@ -269,7 +269,7 @@ describe('TS Integration Tests', () => {
                 ],
             );
 
-            bond.args.forEach((arg) => {
+            bond.args.forEach(arg => {
                 expect(arg[0]).to.be.instanceOf(MediaEvent);
             });
         });
@@ -347,7 +347,7 @@ describe('TS Integration Tests', () => {
                 ],
             ).to.eq(true);
 
-            bond.args.forEach((arg) => {
+            bond.args.forEach(arg => {
                 expect(arg[0]).to.be.instanceOf(MediaEvent);
             });
         });
@@ -431,7 +431,7 @@ describe('TS Integration Tests', () => {
                 ],
             ).to.eq(true);
 
-            bond.args.forEach((arg) => {
+            bond.args.forEach(arg => {
                 expect(arg[0]).to.be.instanceOf(MediaEvent);
             });
         });

@@ -11,8 +11,8 @@ describe('JS Integration Tests', () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         mp = {
-            logBaseEvent: (event) => {},
-            logger: (message) => {},
+            logBaseEvent: event => {},
+            logger: message => {},
         };
 
         song = {
@@ -29,7 +29,7 @@ describe('JS Integration Tests', () => {
             song.title,
             song.duration,
             song.contentType,
-            song.streamType
+            song.streamType,
         );
     });
 
@@ -53,7 +53,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media Event Listener Callback to have beeen called'
+                'Expected Media Event Listener Callback to have beeen called',
             ).to.eq(true);
             expect(bond.callCount).to.eq(3);
 
@@ -69,7 +69,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to NOT have been called'
+                'Expected logBaseEvent to NOT have been called',
             ).to.eq(false);
 
             mpMedia.logPageEvent = true;
@@ -77,7 +77,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
         });
 
@@ -88,7 +88,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to NOT have been called'
+                'Expected logBaseEvent to NOT have been called',
             ).to.eq(false);
 
             mpMedia.logMediaEvent = true;
@@ -96,7 +96,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected logBaseEvent to have been called'
+                'Expected logBaseEvent to have been called',
             ).to.eq(true);
         });
 
@@ -122,7 +122,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.args[0][0],
-                'Expected Media event to be an MPEvent'
+                'Expected Media event to be an MPEvent',
             ).to.eqls(expectedObject);
         });
 
@@ -134,7 +134,7 @@ describe('JS Integration Tests', () => {
 
             expect(
                 bond.called,
-                'Expected Media event NOT call Updated Playhead Position'
+                'Expected Media event NOT call Updated Playhead Position',
             ).to.eq(false);
         });
     });
@@ -157,21 +157,21 @@ describe('JS Integration Tests', () => {
                 expect(mpMedia.getAttributes().playhead_position).equal(60);
                 expect(
                     bond.args[0][0].playheadPosition,
-                    'Logging playhead position should persist'
+                    'Logging playhead position should persist',
                 ).equal(60);
 
                 mpMedia.logPlay({ currentPlayheadPosition: 97 });
                 expect(mpMedia.getAttributes().playhead_position).equal(97);
                 expect(
                     bond.args[1][0].playheadPosition,
-                    'Passing playhead position as option should persist'
+                    'Passing playhead position as option should persist',
                 ).equal(97);
 
                 mpMedia.logPause();
                 expect(mpMedia.getAttributes().playhead_position).equal(97);
                 expect(
                     bond.args[2][0].playheadPosition,
-                    'Playhead position from session should persist'
+                    'Playhead position from session should persist',
                 ).equal(97);
             });
         });
