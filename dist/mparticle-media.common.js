@@ -1013,7 +1013,8 @@ var MediaSession = /** @class */ (function () {
     MediaSession.prototype.logAdSummary = function () {
         var _a, _b, _c, _d, _e, _f, _g;
         if (this.adContent) {
-            if (this.adContent.adStartTimestamp) {
+            if (this.adContent.adStartTimestamp &&
+                !this.adContent.adEndTimestamp) {
                 this.adContent.adEndTimestamp = Date.now();
                 this.mediaTotalAdTimeSpent +=
                     this.adContent.adEndTimestamp -
