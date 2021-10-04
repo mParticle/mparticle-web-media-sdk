@@ -1045,4 +1045,4 @@ var MediaSession = (function () {
 
     return MediaSession;
 
-}());
+})();
