@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.4.6 - 2021-10-04
+
+-   Bugfix: Fix error when rebuilding dist folder
+
 #### 1.4.5 - 2021-09-30
 
 -   Bugfix: Prevent Total Ad Time from being Doubled
