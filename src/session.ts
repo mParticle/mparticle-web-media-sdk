@@ -173,8 +173,7 @@ export class MediaSession {
 
         options = {
             currentPlayheadPosition: this.currentPlayheadPosition,
-            customAttributes: this.customAttributes,
-            ...options,
+            customAttributes: this.customAttributes
         };
 
         return new MediaEvent(
