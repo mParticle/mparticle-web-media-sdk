@@ -167,8 +167,8 @@ export class MediaSession {
         // Because eventAttributes comes second in the merge it will overwrite baseCustomAttributes for
         // overlapping attributes.
         this.customAttributes = {
-            ...this.baseCustomAttributes,
-            ...eventAttributes
+            ...this.sessionCustomAttributes,
+            ...eventCustomAttributes
         };
 
         options = {
