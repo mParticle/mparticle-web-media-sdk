@@ -35,7 +35,7 @@ import { uuid } from './utils';
  *   'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
  *   true,                         // Log Page Event Toggle (true/false)
  *   true,                         // Log Media Event Toggle (true/false)
- *   customAttributeObject         // Base custom attributes used for each media event
+ *   SessionCustomAttributes         // Custom attributes used for each media event within the MediaSession
  * )
  * ```
  *
