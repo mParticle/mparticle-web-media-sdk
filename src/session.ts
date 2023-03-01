@@ -161,7 +161,7 @@ export class MediaSession {
             options?.currentPlayheadPosition || this.currentPlayheadPosition;
 
         // Use the custom attributes on options or empty object for eventAttributes
-        let eventAttributes = options?.customAttributes || {};
+        const eventCustomAttributes = options?.customAttributes || {};
 
         // Merge baseCustomAttributes and eventAttributes into the final attributes for the event.
         // Because eventAttributes comes second in the merge it will overwrite baseCustomAttributes for
