@@ -1270,4 +1270,100 @@ describe('MediaSession', () => {
             });
         });
     });
+
+    describe('Custom Attributes', () => {
+        it('should propogate Session attributes created Events', () => {
+            const sessionOptions = {
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            };
+
+            const customSession: MediaSession = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                false,
+                true,
+                sessionOptions,
+            );
+
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            customSession.logMediaSessionStart();
+
+            expect(bond.called).to.eq(true);
+
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
+                sessionOptions,
+            );
+        });
+
+        it('should allow Events to override Session Custom Attributes', () => {
+            const customSession: MediaSession = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                false,
+                true,
+                {
+                    session_name: 'amazing-current-session',
+                    session_start_time: 'right-now',
+                    custom_session_value: 'this-is-custom',
+                },
+            );
+
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            customSession.logMediaSessionStart({
+                customAttributes: {
+                    custom_event_value: 'start-session',
+                },
+            });
+
+            customSession.logPlay({
+                customAttributes: {
+                    custom_session_value: 'override-session-attributes',
+                },
+            });
+
+            customSession.logMediaSessionEnd();
+
+            expect(bond.called).to.eq(true);
+
+            expect(
+                bond.args[0][0].options.customAttributes,
+                'Session Start: Add New Event Custom Attribute',
+            ).to.eqls({
+                custom_event_value: 'start-session',
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            });
+
+            expect(
+                bond.args[1][0].options.customAttributes,
+                'Media Play: Override Session Attribute',
+            ).to.eqls({
+                custom_session_value: 'override-session-attributes',
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+            });
+
+            expect(
+                bond.args[2][0].options.customAttributes,
+                'Session End: Session Attributes Only',
+            ).to.eqls({
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            });
+        });
+    });
 });
