@@ -1,0 +1,38 @@
+name: Web Media SDK Pull Request
+
+on: pull_request
+
+jobs:
+    build-and-test:
+        name: Build and Test
+        runs-on: ubuntu-latest
+        continue-on-error: true # Prevents parallel job from being cancelled if all fail
+        strategy:
+            matrix:
+                node-version: [16.x, 17.x, 18.x, 19.x, 20.x]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: NPM install ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Run NPM CI
+              run: npm ci
+
+            - name: Lint with ESLint
+              run: npm run lint
+
+            # Test command runs build then tests both TS and compiled JS
+            - name: Run Build and All Tests
+              run: npm run test
+
+            - name: Archive npm failure logs
+              uses: actions/upload-artifact@v3
+              if: failure()
+              with:
+                  name: npm-logs
+                  path: ~/.npm/_logs
