@@ -1273,7 +1273,7 @@ describe('MediaSession', () => {
 
     describe('Custom Attributes', () => {
         it('should include session attributes in Events when provided', () => {
-            const sessionAttributes = {
+            const mediaSessionAttributes = {
                 session_name: 'amazing-current-session',
                 session_start_time: 'right-now',
                 custom_session_value: 'this-is-custom',
@@ -1288,7 +1288,7 @@ describe('MediaSession', () => {
                 song.streamType,
                 false,
                 true,
-                sessionAttributes,
+                mediaSessionAttributes,
             );
 
             const bond = sinon.spy(mp, 'logBaseEvent');
@@ -1298,7 +1298,7 @@ describe('MediaSession', () => {
             expect(bond.called).to.eq(true);
 
             expect(bond.args[0][0].options.customAttributes).to.eqls(
-                sessionAttributes,
+                mediaSessionAttributes,
             );
         });
 
