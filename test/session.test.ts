@@ -1272,8 +1272,8 @@ describe('MediaSession', () => {
     });
 
     describe('Custom Attributes', () => {
-        it('should propogate Session attributes created Events', () => {
-            const sessionOptions = {
+        it('should include session attributes in Events when provided', () => {
+            const sessionAttributes = {
                 session_name: 'amazing-current-session',
                 session_start_time: 'right-now',
                 custom_session_value: 'this-is-custom',
@@ -1288,7 +1288,7 @@ describe('MediaSession', () => {
                 song.streamType,
                 false,
                 true,
-                sessionOptions,
+                sessionAttributes,
             );
 
             const bond = sinon.spy(mp, 'logBaseEvent');
@@ -1298,7 +1298,7 @@ describe('MediaSession', () => {
             expect(bond.called).to.eq(true);
 
             expect(bond.args[0][0].options.customAttributes).to.eqls(
-                sessionOptions,
+                sessionAttributes,
             );
         });
 
@@ -1337,8 +1337,15 @@ describe('MediaSession', () => {
 
             expect(bond.called).to.eq(true);
 
+            const sessionStartEventAttrs =
+                bond.args[0][0].options.customAttributes;
+            const mediaPlayEventAttrs =
+                bond.args[1][0].options.customAttributes;
+            const sessionEndEventAttrs =
+                bond.args[2][0].options.customAttributes;
+
             expect(
-                bond.args[0][0].options.customAttributes,
+                sessionStartEventAttrs,
                 'Session Start: Add New Event Custom Attribute',
             ).to.eqls({
                 custom_event_value: 'start-session',
@@ -1348,7 +1355,7 @@ describe('MediaSession', () => {
             });
 
             expect(
-                bond.args[1][0].options.customAttributes,
+                mediaPlayEventAttrs,
                 'Media Play: Override Session Attribute',
             ).to.eqls({
                 custom_session_value: 'override-session-attributes',
@@ -1357,7 +1364,7 @@ describe('MediaSession', () => {
             });
 
             expect(
-                bond.args[2][0].options.customAttributes,
+                sessionEndEventAttrs,
                 'Session End: Session Attributes Only',
             ).to.eqls({
                 session_name: 'amazing-current-session',
