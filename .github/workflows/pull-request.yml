@@ -9,7 +9,9 @@ jobs:
         continue-on-error: true # Prevents parallel job from being cancelled if all fail
         strategy:
             matrix:
-                node-version: [14.x, 15.x, 16.x, 17.x, 18.x, 19.x, 20.x]
+                # Add support for modern versions of node
+                # https://go.mparticle.com/work/SQDSDKS-5236
+                node-version: [14.x, 15.x, 16.x, 17.x, 18.x, 19.x]
 
         steps:
             - name: Checkout
