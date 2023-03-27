@@ -681,45 +681,32 @@ export class MediaSession {
             }
             // tslint:disable-next-line: no-any
             const customAttributes: Record<string, any> = {};
-            customAttributes[
-                ValidMediaAttributeKeys.mediaSessionIdKey
-            ] = this.sessionId;
-            customAttributes[
-                ValidMediaAttributeKeys.startTimestampKey
-            ] = this.mediaSessionStartTimestamp;
-            customAttributes[
-                ValidMediaAttributeKeys.endTimestampKey
-            ] = this.mediaSessionEndTimestamp;
-            customAttributes[
-                ValidMediaAttributeKeys.contentIdKey
-            ] = this.contentId;
-            customAttributes[
-                ValidMediaAttributeKeys.contentTitleKey
-            ] = this.title;
-            customAttributes[
-                ValidMediaAttributeKeys.mediaTimeSpentKey
-            ] = this.mediaTimeSpent();
-            customAttributes[
-                ValidMediaAttributeKeys.contentTimeSpentKey
-            ] = this.mediaContentTimeSpent();
-            customAttributes[
-                ValidMediaAttributeKeys.contentCompleteKey
-            ] = this.mediaContentComplete;
-            customAttributes[
-                ValidMediaAttributeKeys.totalSegmentsKey
-            ] = this.mediaSessionSegmentTotal;
-            customAttributes[
-                ValidMediaAttributeKeys.totalAdTimeSpentKey
-            ] = this.mediaTotalAdTimeSpent;
-            customAttributes[
-                ValidMediaAttributeKeys.adTimeSpentRateKey
-            ] = this.mediaAdTimeSpentRate();
-            customAttributes[
-                ValidMediaAttributeKeys.totalAdsKey
-            ] = this.mediaSessionAdTotal;
-            customAttributes[
-                ValidMediaAttributeKeys.adIDsKey
-            ] = this.mediaSessionAdObjects;
+            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] =
+                this.sessionId;
+            customAttributes[ValidMediaAttributeKeys.startTimestampKey] =
+                this.mediaSessionStartTimestamp;
+            customAttributes[ValidMediaAttributeKeys.endTimestampKey] =
+                this.mediaSessionEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.contentIdKey] =
+                this.contentId;
+            customAttributes[ValidMediaAttributeKeys.contentTitleKey] =
+                this.title;
+            customAttributes[ValidMediaAttributeKeys.mediaTimeSpentKey] =
+                this.mediaTimeSpent();
+            customAttributes[ValidMediaAttributeKeys.contentTimeSpentKey] =
+                this.mediaContentTimeSpent();
+            customAttributes[ValidMediaAttributeKeys.contentCompleteKey] =
+                this.mediaContentComplete;
+            customAttributes[ValidMediaAttributeKeys.totalSegmentsKey] =
+                this.mediaSessionSegmentTotal;
+            customAttributes[ValidMediaAttributeKeys.totalAdTimeSpentKey] =
+                this.mediaTotalAdTimeSpent;
+            customAttributes[ValidMediaAttributeKeys.adTimeSpentRateKey] =
+                this.mediaAdTimeSpentRate();
+            customAttributes[ValidMediaAttributeKeys.totalAdsKey] =
+                this.mediaSessionAdTotal;
+            customAttributes[ValidMediaAttributeKeys.adIDsKey] =
+                this.mediaSessionAdObjects;
 
             const options: Options = {
                 currentPlayheadPosition: this.currentPlayheadPosition,
@@ -743,33 +730,25 @@ export class MediaSession {
 
             // tslint:disable-next-line: no-any
             const customAttributes: Record<string, any> = {};
-            customAttributes[
-                ValidMediaAttributeKeys.mediaSessionIdKey
-            ] = this.sessionId;
-            customAttributes[
-                ValidMediaAttributeKeys.contentId
-            ] = this.contentId;
-            customAttributes[
-                ValidMediaAttributeKeys.segmentIndexKey
-            ] = this.segment.index;
-            customAttributes[
-                ValidMediaAttributeKeys.segmentTitleKey
-            ] = this.segment.title;
-            customAttributes[
-                ValidMediaAttributeKeys.segmentStartTimestampKey
-            ] = this.segment.segmentStartTimestamp;
-            customAttributes[
-                ValidMediaAttributeKeys.segmentEndTimestampKey
-            ] = this.segment.segmentEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] =
+                this.sessionId;
+            customAttributes[ValidMediaAttributeKeys.contentId] =
+                this.contentId;
+            customAttributes[ValidMediaAttributeKeys.segmentIndexKey] =
+                this.segment.index;
+            customAttributes[ValidMediaAttributeKeys.segmentTitleKey] =
+                this.segment.title;
+            customAttributes[ValidMediaAttributeKeys.segmentStartTimestampKey] =
+                this.segment.segmentStartTimestamp;
+            customAttributes[ValidMediaAttributeKeys.segmentEndTimestampKey] =
+                this.segment.segmentEndTimestamp;
             customAttributes[ValidMediaAttributeKeys.segmentTimeSpentKey] =
                 this.segment.segmentEndTimestamp! -
                 this.segment.segmentStartTimestamp;
-            customAttributes[
-                ValidMediaAttributeKeys.segmentSkippedKey
-            ] = this.segment.segmentSkipped;
-            customAttributes[
-                ValidMediaAttributeKeys.segmentCompletedKey
-            ] = this.segment.segmentCompleted;
+            customAttributes[ValidMediaAttributeKeys.segmentSkippedKey] =
+                this.segment.segmentSkipped;
+            customAttributes[ValidMediaAttributeKeys.segmentCompletedKey] =
+                this.segment.segmentCompleted;
 
             const options: Options = {
                 currentPlayheadPosition: this.currentPlayheadPosition,
@@ -799,30 +778,23 @@ export class MediaSession {
 
             // tslint:disable-next-line: no-any
             const customAttributes: Record<string, any> = {};
-            customAttributes[
-                ValidMediaAttributeKeys.mediaSessionIdKey
-            ] = this.sessionId;
-            customAttributes[
-                ValidMediaAttributeKeys.adBreakIdKey
-            ] = this.adBreak?.id;
-            customAttributes[
-                ValidMediaAttributeKeys.adContentIdKey
-            ] = this.adContent?.id;
+            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] =
+                this.sessionId;
+            customAttributes[ValidMediaAttributeKeys.adBreakIdKey] =
+                this.adBreak?.id;
+            customAttributes[ValidMediaAttributeKeys.adContentIdKey] =
+                this.adContent?.id;
             customAttributes[
                 ValidMediaAttributeKeys.adContentStartTimestampKey
             ] = this.adContent?.adStartTimestamp;
-            customAttributes[
-                ValidMediaAttributeKeys.adContentEndTimestampKey
-            ] = this.adContent?.adEndTimestamp;
-            customAttributes[
-                ValidMediaAttributeKeys.adContentTitleKey
-            ] = this.adContent?.title;
-            customAttributes[
-                ValidMediaAttributeKeys.adContentSkippedKey
-            ] = this.adContent?.adSkipped;
-            customAttributes[
-                ValidMediaAttributeKeys.adContentCompletedKey
-            ] = this.adContent?.adCompleted;
+            customAttributes[ValidMediaAttributeKeys.adContentEndTimestampKey] =
+                this.adContent?.adEndTimestamp;
+            customAttributes[ValidMediaAttributeKeys.adContentTitleKey] =
+                this.adContent?.title;
+            customAttributes[ValidMediaAttributeKeys.adContentSkippedKey] =
+                this.adContent?.adSkipped;
+            customAttributes[ValidMediaAttributeKeys.adContentCompletedKey] =
+                this.adContent?.adCompleted;
 
             const options: Options = {
                 currentPlayheadPosition: this.currentPlayheadPosition,
