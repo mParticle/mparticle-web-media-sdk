@@ -114,7 +114,7 @@ describe('MediaSession', () => {
 
             mpMedia.logAdBreakStart(adBreak, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
 
@@ -178,7 +178,7 @@ describe('MediaSession', () => {
 
             mpMedia.logAdBreakEnd(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -263,7 +263,7 @@ describe('MediaSession', () => {
 
             mpMedia.logAdStart(adContent, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -374,7 +374,7 @@ describe('MediaSession', () => {
 
             mpMedia.logAdEnd(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -449,7 +449,7 @@ describe('MediaSession', () => {
 
             mpMedia.logAdSkip(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -516,7 +516,7 @@ describe('MediaSession', () => {
 
             mpMedia.logAdClick(adContent, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -558,7 +558,7 @@ describe('MediaSession', () => {
 
             mpMedia.logBufferStart(320, 20, 201, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -600,7 +600,7 @@ describe('MediaSession', () => {
 
             mpMedia.logBufferEnd(99, 2, 341, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -640,7 +640,7 @@ describe('MediaSession', () => {
 
             mpMedia.logSeekStart(341, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -680,7 +680,7 @@ describe('MediaSession', () => {
 
             mpMedia.logSeekEnd(111, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -741,7 +741,7 @@ describe('MediaSession', () => {
 
             mpMedia.logMediaSessionStart(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -780,7 +780,7 @@ describe('MediaSession', () => {
 
             mpMedia.logMediaSessionEnd(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -874,7 +874,7 @@ describe('MediaSession', () => {
             };
             mpMedia.logPlay(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -912,7 +912,7 @@ describe('MediaSession', () => {
             };
             mpMedia.logPause(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -950,7 +950,7 @@ describe('MediaSession', () => {
             };
             mpMedia.logMediaContentEnd(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -1016,7 +1016,7 @@ describe('MediaSession', () => {
             };
             mpMedia.logSegmentStart(segment, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -1079,7 +1079,7 @@ describe('MediaSession', () => {
 
             mpMedia.logSegmentEnd(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -1141,7 +1141,7 @@ describe('MediaSession', () => {
             };
             mpMedia.logSegmentSkip(options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
@@ -1236,7 +1236,7 @@ describe('MediaSession', () => {
 
             mpMedia.logQoS(qos, options);
 
-            expect(bond.args[0][0].options.customAttributes).to.eq(
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
                 options.customAttributes,
             );
 
@@ -1267,6 +1267,109 @@ describe('MediaSession', () => {
                     reached: '95%',
                     integerValue: 201,
                 },
+            });
+        });
+    });
+
+    describe('Custom Attributes', () => {
+        it('should include session attributes in Events when provided', () => {
+            const mediaSessionAttributes = {
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            };
+
+            const customSession: MediaSession = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                false,
+                true,
+                mediaSessionAttributes,
+            );
+
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            customSession.logMediaSessionStart();
+
+            expect(bond.called).to.eq(true);
+
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
+                mediaSessionAttributes,
+            );
+        });
+
+        it('should allow Events to override Session Custom Attributes', () => {
+            const customSession: MediaSession = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                false,
+                true,
+                {
+                    session_name: 'amazing-current-session',
+                    session_start_time: 'right-now',
+                    custom_session_value: 'this-is-custom',
+                },
+            );
+
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            customSession.logMediaSessionStart({
+                customAttributes: {
+                    custom_event_value: 'start-session',
+                },
+            });
+
+            customSession.logPlay({
+                customAttributes: {
+                    custom_session_value: 'override-session-attributes',
+                },
+            });
+
+            customSession.logMediaSessionEnd();
+
+            expect(bond.called).to.eq(true);
+
+            const sessionStartEventAttrs =
+                bond.args[0][0].options.customAttributes;
+            const mediaPlayEventAttrs =
+                bond.args[1][0].options.customAttributes;
+            const sessionEndEventAttrs =
+                bond.args[2][0].options.customAttributes;
+
+            expect(
+                sessionStartEventAttrs,
+                'Session Start: Add New Event Custom Attribute',
+            ).to.eqls({
+                custom_event_value: 'start-session',
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            });
+
+            expect(
+                mediaPlayEventAttrs,
+                'Media Play: Override Session Attribute',
+            ).to.eqls({
+                custom_session_value: 'override-session-attributes',
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+            });
+
+            expect(
+                sessionEndEventAttrs,
+                'Session End: Session Attributes Only',
+            ).to.eqls({
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
             });
         });
     });

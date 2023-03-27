@@ -35,6 +35,10 @@ import { uuid } from './utils';
  *   'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
  *   true,                         // Log Page Event Toggle (true/false)
  *   true,                         // Log Media Event Toggle (true/false)
+ *   {                             // (optional) Custom Attributes object used for each media event within the Media Session
+ *     mediaSessionAttribute1: 'value1',
+ *     mediaSessionAttribute2: 'value2'
+ *   };
  * )
  * ```
  *
@@ -130,6 +134,7 @@ export class MediaSession {
      * @param streamType A descriptor for the type of stream, i.e. live or on demand
      * @param logPageEvent A flag that toggles sending mParticle Events to Core SDK
      * @param logMediaEvent A flag that toggles sending Media Events to Core SDK
+     * @param mediaSessionAttributes (optional) A set of custom attributes to attach to all media Events created by a Session
      */
     constructor(
         readonly mparticleInstance: MpSDKInstance,
@@ -140,6 +145,7 @@ export class MediaSession {
         readonly streamType: MediaStreamType,
         public logPageEvent = false,
         public logMediaEvent = true,
+        public mediaSessionAttributes?: ModelAttributes,
     ) {
         this.mediaSessionStartTimestamp = Date.now();
     }
@@ -156,12 +162,17 @@ export class MediaSession {
         // Set event option based on options or current state
         this.currentPlayheadPosition =
             options?.currentPlayheadPosition || this.currentPlayheadPosition;
-        this.customAttributes = options?.customAttributes || {};
+
+        // Merge Session Attributes with any other optional Event Attributes.
+        // Event-Level Custom Attributes will override Session Custom Attributes if there is a collison.
+        this.customAttributes = {
+            ...this.mediaSessionAttributes,
+            ...(options?.customAttributes || {}),
+        };
 
         options = {
             currentPlayheadPosition: this.currentPlayheadPosition,
             customAttributes: this.customAttributes,
-            ...options,
         };
 
         return new MediaEvent(
@@ -645,7 +656,8 @@ export class MediaSession {
      *     contentType = ContentType.Video
      *
      *     logPageEvents = false              //optional, defaults to false anyway
-     *     logMediaEvents = false
+     *     logMediaEvents = false             //optional, defaults to false anyway
+     *     sessionCustomEvents = {}           //optional, defaults to empty object
      * );
      *
      * const myCallback = (event: MediaEvent): void => {
