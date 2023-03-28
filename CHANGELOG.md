@@ -1,5 +1,10 @@
 ## Releases
 
+#### 1.4.7 - 2023-03-28
+
+-   Add Session Custom Attributes for Events ([#559](https://github.com/mParticle/mparticle-web-media-sdk/pull/559)) ([7b97000](https://github.com/mParticle/mparticle-web-media-sdk/commit/7b97000f416632d30a562a920b96bf68b370966a))
+-   ci: Add Standard Dependapot Workflows and Contribution notes ([#562](https://github.com/mParticle/mparticle-web-media-sdk/pull/562)) ([9a2f6fa](https://github.com/mParticle/mparticle-web-media-sdk/commit/9a2f6fabb8abc52debb5e7af1645cce48980a36c))
+
 #### 1.4.6 - 2021-10-04
 
 -   Bugfix: Fix error when rebuilding dist folder
