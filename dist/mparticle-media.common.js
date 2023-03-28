@@ -436,6 +436,10 @@ var MediaEvent = /** @class */ (function (_super) {
  *   'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
  *   true,                         // Log Page Event Toggle (true/false)
  *   true,                         // Log Media Event Toggle (true/false)
+ *   {                             // (optional) Custom Attributes object used for each media event within the Media Session
+ *     mediaSessionAttribute1: 'value1',
+ *     mediaSessionAttribute2: 'value2'
+ *   };
  * )
  * ```
  *
@@ -480,8 +484,9 @@ var MediaSession = /** @class */ (function () {
      * @param streamType A descriptor for the type of stream, i.e. live or on demand
      * @param logPageEvent A flag that toggles sending mParticle Events to Core SDK
      * @param logMediaEvent A flag that toggles sending Media Events to Core SDK
+     * @param mediaSessionAttributes (optional) A set of custom attributes to attach to all media Events created by a Session
      */
-    function MediaSession(mparticleInstance, contentId, title, duration, contentType, streamType, logPageEvent, logMediaEvent) {
+    function MediaSession(mparticleInstance, contentId, title, duration, contentType, streamType, logPageEvent, logMediaEvent, mediaSessionAttributes) {
         if (logPageEvent === void 0) { logPageEvent = false; }
         if (logMediaEvent === void 0) { logMediaEvent = true; }
         this.mparticleInstance = mparticleInstance;
@@ -492,6 +497,7 @@ var MediaSession = /** @class */ (function () {
         this.streamType = streamType;
         this.logPageEvent = logPageEvent;
         this.logMediaEvent = logMediaEvent;
+        this.mediaSessionAttributes = mediaSessionAttributes;
         this._sessionId = '';
         this.currentQoS = {
             startupTime: 0,
@@ -545,8 +551,13 @@ var MediaSession = /** @class */ (function () {
         // Set event option based on options or current state
         this.currentPlayheadPosition =
             (options === null || options === void 0 ? void 0 : options.currentPlayheadPosition) || this.currentPlayheadPosition;
-        this.customAttributes = (options === null || options === void 0 ? void 0 : options.customAttributes) || {};
-        options = __assign({ currentPlayheadPosition: this.currentPlayheadPosition, customAttributes: this.customAttributes }, options);
+        // Merge Session Attributes with any other optional Event Attributes.
+        // Event-Level Custom Attributes will override Session Custom Attributes if there is a collison.
+        this.customAttributes = __assign(__assign({}, this.mediaSessionAttributes), ((options === null || options === void 0 ? void 0 : options.customAttributes) || {}));
+        options = {
+            currentPlayheadPosition: this.currentPlayheadPosition,
+            customAttributes: this.customAttributes,
+        };
         return new MediaEvent(eventType, this.title, this.contentId, this.duration, this.contentType, this.streamType, this.sessionId, options);
     };
     /**
@@ -923,7 +934,8 @@ var MediaSession = /** @class */ (function () {
          *     contentType = ContentType.Video
          *
          *     logPageEvents = false              //optional, defaults to false anyway
-         *     logMediaEvents = false
+         *     logMediaEvents = false             //optional, defaults to false anyway
+         *     sessionCustomEvents = {}           //optional, defaults to empty object
          * );
          *
          * const myCallback = (event: MediaEvent): void => {
