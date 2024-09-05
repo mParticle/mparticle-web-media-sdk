@@ -746,6 +746,24 @@ describe('MediaSession', () => {
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
+
+        it('accepts currentPlayheadPosition with a value of 0', () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            const options = {
+                currentPlayheadPosition: 0,
+                customAttributes: {
+                    content_rating: 'epic',
+                },
+            };
+
+            mpMedia.logMediaSessionStart(options);
+
+            expect(bond.args[0][0].options.customAttributes).to.eqls(
+                options.customAttributes,
+            );
+            expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(0);
+        });
     });
 
     describe('#logMediaSessionEnd', () => {
