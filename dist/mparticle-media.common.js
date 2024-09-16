@@ -547,10 +547,11 @@ var MediaSession = /** @class */ (function () {
      * @param customAttributes
      */
     MediaSession.prototype.createMediaEvent = function (eventType, options) {
+        var _a;
         if (options === void 0) { options = {}; }
         // Set event option based on options or current state
         this.currentPlayheadPosition =
-            (options === null || options === void 0 ? void 0 : options.currentPlayheadPosition) || this.currentPlayheadPosition;
+            (_a = options === null || options === void 0 ? void 0 : options.currentPlayheadPosition) !== null && _a !== void 0 ? _a : this.currentPlayheadPosition;
         // Merge Session Attributes with any other optional Event Attributes.
         // Event-Level Custom Attributes will override Session Custom Attributes if there is a collison.
         this.customAttributes = __assign(__assign({}, this.mediaSessionAttributes), ((options === null || options === void 0 ? void 0 : options.customAttributes) || {}));
