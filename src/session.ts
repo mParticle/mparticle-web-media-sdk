@@ -161,7 +161,7 @@ export class MediaSession {
     ): MediaEvent {
         // Set event option based on options or current state
         this.currentPlayheadPosition =
-            options?.currentPlayheadPosition || this.currentPlayheadPosition;
+            options?.currentPlayheadPosition ?? this.currentPlayheadPosition;
 
         // Merge Session Attributes with any other optional Event Attributes.
         // Event-Level Custom Attributes will override Session Custom Attributes if there is a collison.
