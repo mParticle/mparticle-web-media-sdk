@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.4.8 - 2024-09-16
+
+-   fix: Accept CurrentPlayheadPosition with 0 value ([#638](https://github.com/mParticle/mparticle-web-media-sdk/pull/638)) ([4b22668](https://github.com/mParticle/mparticle-web-media-sdk/commit/4b22668940f3a3ac66469191e52ecf12015db732))
+
 #### 1.4.7 - 2023-03-28
 
 -   Add Session Custom Attributes for Events ([#559](https://github.com/mParticle/mparticle-web-media-sdk/pull/559)) ([7b97000](https://github.com/mParticle/mparticle-web-media-sdk/commit/7b97000f416632d30a562a920b96bf68b370966a))
