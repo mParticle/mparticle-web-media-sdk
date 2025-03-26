@@ -77,7 +77,7 @@
         "rollup-plugin-commonjs": "^10.0.1",
         "rollup-plugin-node-resolve": "^5.2.0",
         "rollup-plugin-typescript": "^1.0.1",
-        "sinon": "^11.1.2",
+        "sinon": "^20.0.0",
         "ts-node": "^10.2.1",
         "typedoc": "^0.20.30",
         "typedoc-default-themes": "https://github.com/mParticle/typedoc-default-themes.git#mp-custom",
