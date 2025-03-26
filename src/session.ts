@@ -298,6 +298,12 @@ export class MediaSession {
      */
     logMediaContentEnd(options?: Options) {
         this.mediaContentComplete = true;
+        if (this.currentPlaybackStartTimestamp) {
+            this.storedPlaybackTime =
+                this.storedPlaybackTime +
+                (Date.now() - this.currentPlaybackStartTimestamp);
+            this.currentPlaybackStartTimestamp = undefined;
+        }
         const event = this.createMediaEvent(MediaEventType.ContentEnd, options);
 
         this.logEvent(event);

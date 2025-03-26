@@ -973,6 +973,42 @@ describe('MediaSession', () => {
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
+
+        it('should pause mediaContentTimeSpent', async () => {
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            const options = {
+                customAttributes: {
+                    content_rating: 'epic',
+                },
+                currentPlayheadPosition: 0,
+            };
+
+            // logPlay is triggered to start media content time tracking.
+            mpMedia.logPlay(options);
+            // 100ms delay added to account for the time spent on media content.
+            await new Promise(f => setTimeout(f, 100));
+            mpMedia.logMediaContentEnd(options);
+            // Another 100ms delay added after logMediaContentEnd is triggered to account for time spent on media session (total = +200ms).
+            await new Promise(f => setTimeout(f, 100));
+            mpMedia.logMediaSessionEnd(options);
+
+            // the 4th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
+            const mpMediaContentTimeSpent = bond.args[3][0].options.customAttributes.media_content_time_spent;
+            const mpMediaTimeSpent = bond.args[3][0].options.customAttributes.media_time_spent;
+
+            expect(mpMediaContentTimeSpent).to.not.eql(mpMediaTimeSpent);
+
+            // the mediaContentTimeSpent varies in value each test run by a millisecond or two (i,e value is could be 100ms, 101ms, 102ms)
+            // and we can't determine the exact value, hence the greaterThanOrEqual and lessThanOrEqual tests.
+            expect(mpMediaContentTimeSpent).to.greaterThanOrEqual(100);
+            expect(mpMediaContentTimeSpent).to.lessThanOrEqual(200);
+
+            // the mediaTimeSpent varies in value each test run by a millisecond or two (i,e value is could be 200ms, 201ms, 202ms)
+            // and we can't determine the exact value, hence the greaterThanOrEqual and lessThanOrEqual tests.
+            expect(mpMediaTimeSpent).to.greaterThanOrEqual(200);
+            expect(mpMediaTimeSpent).to.lessThanOrEqual(300);
+        });
     });
 
     describe('#logSegmentStart', () => {
