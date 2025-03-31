@@ -652,6 +652,12 @@ var MediaSession = (function () {
          */
         MediaSession.prototype.logMediaContentEnd = function (options) {
             this.mediaContentComplete = true;
+            if (this.currentPlaybackStartTimestamp) {
+                this.storedPlaybackTime =
+                    this.storedPlaybackTime +
+                        (Date.now() - this.currentPlaybackStartTimestamp);
+                this.currentPlaybackStartTimestamp = undefined;
+            }
             var event = this.createMediaEvent(MediaEventType.ContentEnd, options);
             this.logEvent(event);
         };
