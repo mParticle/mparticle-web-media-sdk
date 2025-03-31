@@ -58,6 +58,9 @@ const mediaSession = new MediaSession(
     'OnDemand'                    // Stream Type (OnDemand, Live, etc.)
     true,                         // Log Page Event Toggle (true/false)
     true,                         // Log Media Event Toggle (true/false)
+    {   
+        "my_session_attribute": "My Session Attribute"
+    }    // (optional) Custom Session Attributes object used for each media event within the Media Session
 )
 
 mediaSession.logMediaSessionStart();
@@ -80,6 +83,24 @@ const customAttributes = {
 
 mediaSession.logPlay({ options: currentAttributes });
 ```
+
+### Custom media session attributes
+
+You can create custom media session attributes when initializing a new media session by including the custom media session attributes object directly in the MediaSession() builder:
+
+```javascript
+{   
+    "my_session_attribute": "My Session Attribute" // Example key/value pair for a custom media session attribute
+}
+```
+
+Custom media session attributes are automatically propagated to all media events logged during the session in addition to the media session summary event. Since custom session attributes are propagated to any event (a media event, advertising event, or a custom events) that is logged during the session, you don’t need to set these attributes again when you trigger the start of a media session.
+
+#### Custom media session attribute limits
+
+* 100 key/value pairs per media session
+* Keys must be strings and cannot exceed 255 characters
+* Values may be strings, numbers, booleans, or dates, and cannot exceed 4096 characters
 
 ### Logging Playhead Position
 
