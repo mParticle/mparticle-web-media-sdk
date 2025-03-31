@@ -1,5 +1,8 @@
 ## Releases
 
+#### 1.4.9 - 2025-03-31
+
+-   fix: update calculation of mediaContentTimeSpent ([#639](https://github.com/mParticle/mparticle-web-media-sdk/pull/639)) ([345f1b5](https://github.com/mParticle/mparticle-web-media-sdk/commit/345f1b50c1e6fc47bb7d58a4e2259047f07a42ff))
 #### 1.4.8 - 2024-09-16
 
 -   fix: Accept CurrentPlayheadPosition with 0 value ([#638](https://github.com/mParticle/mparticle-web-media-sdk/pull/638)) ([4b22668](https://github.com/mParticle/mparticle-web-media-sdk/commit/4b22668940f3a3ac66469191e52ecf12015db732))
