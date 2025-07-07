@@ -96,7 +96,7 @@ export class MediaSession {
     private mediaSessionStartTimestamp = Date.now(); //Timestamp created on logMediaSessionStart event
     private mediaSessionEndTimestamp = Date.now(); //Timestamp updated when any event is loggged
     private mediaTimeSpent() {
-        return this.mediaSessionEndTimestamp - this.mediaSessionStartTimestamp;
+        return Date.now() - this.mediaSessionStartTimestamp;
     }
     private currentPlaybackStartTimestamp?: number; //Timestamp for beginning of current playback
     private storedPlaybackTime = 0; //On Pause calculate playback time and clear currentPlaybackTime
