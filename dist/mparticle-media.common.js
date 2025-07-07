@@ -527,7 +527,7 @@ var MediaSession = /** @class */ (function () {
         configurable: true
     });
     MediaSession.prototype.mediaTimeSpent = function () {
-        return this.mediaSessionEndTimestamp - this.mediaSessionStartTimestamp;
+        return Date.now() - this.mediaSessionStartTimestamp;
     };
     MediaSession.prototype.mediaContentTimeSpent = function () {
         if (this.currentPlaybackStartTimestamp) {
