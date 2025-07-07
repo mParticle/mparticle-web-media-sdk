@@ -1,5 +1,9 @@
 ## Releases
 
+#### 1.4.10 - 2025-07-07
+
+-   fix: Calculate mediaTimeSpent based on current time ([#709](https://github.com/mParticle/mparticle-web-media-sdk/pull/709)) ([a6c72b2](https://github.com/mParticle/mparticle-web-media-sdk/commit/a6c72b28605e6342687633102e6fb51d4160b43a))
+
 #### 1.4.9 - 2025-03-31
 
 -   fix: update calculation of mediaContentTimeSpent ([#639](https://github.com/mParticle/mparticle-web-media-sdk/pull/639)) ([345f1b5](https://github.com/mParticle/mparticle-web-media-sdk/commit/345f1b50c1e6fc47bb7d58a4e2259047f07a42ff))
