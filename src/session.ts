@@ -101,10 +101,16 @@ export class MediaSession {
     private currentPlaybackStartTimestamp?: number; //Timestamp for beginning of current playback
     private storedPlaybackTime = 0; //On Pause calculate playback time and clear currentPlaybackTime
     private mediaContentTimeSpent() {
+        const mediaAdBreakTimeSpent =
+            this.pauseOnAdBreak && this.mediaTotalAdBreakTimeSpent
+                ? this.mediaTotalAdBreakTimeSpent
+                : 0;
         if (this.currentPlaybackStartTimestamp) {
             return (
                 this.storedPlaybackTime +
-                (Date.now() - this.currentPlaybackStartTimestamp)
+                (Date.now() -
+                    this.currentPlaybackStartTimestamp -
+                    mediaAdBreakTimeSpent)
             );
         } else {
             return this.storedPlaybackTime;
@@ -114,6 +120,7 @@ export class MediaSession {
     private mediaContentComplete = false; //Updates to true triggered by logMediaContentEnd, 0 or false if complete milestone not reached.
     private mediaSessionSegmentTotal = 0; //number incremented with each logSegmentStart
     private mediaTotalAdTimeSpent = 0; //total second sum of ad break time spent
+    private mediaTotalAdBreakTimeSpent = 0;
     private mediaAdTimeSpentRate() {
         return (
             (this.mediaTotalAdTimeSpent / this.mediaContentTimeSpent()) * 100
@@ -134,6 +141,7 @@ export class MediaSession {
      * @param streamType A descriptor for the type of stream, i.e. live or on demand
      * @param logPageEvent A flag that toggles sending mParticle Events to Core SDK
      * @param logMediaEvent A flag that toggles sending Media Events to Core SDK
+     * @param pauseOnAdBreak A flag that toggles wether to stop calculating mediaContentTimespent when ad break events are logged
      * @param mediaSessionAttributes (optional) A set of custom attributes to attach to all media Events created by a Session
      */
     constructor(
@@ -145,6 +153,7 @@ export class MediaSession {
         readonly streamType: MediaStreamType,
         public logPageEvent = false,
         public logMediaEvent = true,
+        public pauseOnAdBreak = false,
         public mediaSessionAttributes?: ModelAttributes,
     ) {
         this.mediaSessionStartTimestamp = Date.now();
@@ -317,6 +326,7 @@ export class MediaSession {
      */
     logAdBreakStart(adBreakContent: AdBreak, options?: Options) {
         this.adBreak = adBreakContent;
+        this.adBreak.adBreakStartTimestamp = Date.now();
 
         const event = this.createMediaEvent(
             MediaEventType.AdBreakStart,
@@ -335,6 +345,12 @@ export class MediaSession {
      */
     logAdBreakEnd(options?: Options) {
         const event = this.createMediaEvent(MediaEventType.AdBreakEnd, options);
+        if (this.adBreak?.adBreakStartTimestamp) {
+            this.adBreak!.adBreakEndTimestamp = Date.now();
+            this.mediaTotalAdBreakTimeSpent +=
+                this.adBreak!.adBreakEndTimestamp! -
+                this.adBreak!.adBreakStartTimestamp!;
+        }
         event.adBreak = this.adBreak;
 
         this.logEvent(event);
