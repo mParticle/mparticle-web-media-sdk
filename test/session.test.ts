@@ -183,6 +183,126 @@ describe('MediaSession', () => {
             );
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
+
+        it('should pause mediaContentTimeSpent when pauseOnAdBreak is true', async () => {
+            const mediaSessionAttributes = {
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            };
+
+            const customSession: MediaSession = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                false,
+                true,
+                true,
+                mediaSessionAttributes,
+            );
+
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            customSession.logMediaSessionStart();
+
+            const options = {
+                customAttributes: {
+                    content_rating: 'epic',
+                },
+                currentPlayheadPosition: 0,
+            };
+
+            const adBreak: AdBreak = {
+                id: '08123410',
+                title: 'mid-roll',
+                duration: 10000,
+            };
+
+            // logPlay is triggered to start media content time tracking.
+            customSession.logPlay(options);
+            // 100ms delay added to account for the time spent on media content.
+            await new Promise(f => setTimeout(f, 100));
+            customSession.logAdBreakStart(adBreak);
+            // Another 100ms delay added after logPause is triggered to account for time spent on media session (total = +200ms).
+            await new Promise(f => setTimeout(f, 100));
+            customSession.logAdBreakEnd(options);
+            // Another 100ms delay added after logPause is triggered to account for time spent on media session (total = +200ms).
+            await new Promise(f => setTimeout(f, 100));
+            customSession.logMediaSessionEnd(options);
+
+            // the 6th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
+            const mpMediaContentTimeSpent =
+                bond.args[5][0].options.customAttributes
+                    .media_content_time_spent;
+
+            // the mediaContentTimeSpent varies in value each test run by a millisecond or two (i,e value is could be 100ms, 101ms, 102ms)
+            // and we can't determine the exact value, hence the greaterThanOrEqual and lessThanOrEqual tests.
+            expect(mpMediaContentTimeSpent).to.greaterThanOrEqual(200);
+            expect(mpMediaContentTimeSpent).to.lessThanOrEqual(300);
+        });
+
+        it('should not pause mediaContentTimeSpent when pauseOnAdBreak is false', async () => {
+            const mediaSessionAttributes = {
+                session_name: 'amazing-current-session',
+                session_start_time: 'right-now',
+                custom_session_value: 'this-is-custom',
+            };
+
+            const customSession: MediaSession = new MediaSession(
+                mp,
+                song.contentId,
+                song.title,
+                song.duration,
+                song.contentType,
+                song.streamType,
+                false,
+                true,
+                false,
+                mediaSessionAttributes,
+            );
+
+            const bond = sinon.spy(mp, 'logBaseEvent');
+
+            customSession.logMediaSessionStart();
+
+            const options = {
+                customAttributes: {
+                    content_rating: 'epic',
+                },
+                currentPlayheadPosition: 0,
+            };
+
+            const adBreak: AdBreak = {
+                id: '08123410',
+                title: 'mid-roll',
+                duration: 10000,
+            };
+
+            // logPlay is triggered to start media content time tracking.
+            customSession.logPlay(options);
+            // 100ms delay added to account for the time spent on media content.
+            await new Promise(f => setTimeout(f, 100));
+            customSession.logAdBreakStart(adBreak);
+            // Another 100ms delay added after logPause is triggered to account for time spent on media session (total = +200ms).
+            await new Promise(f => setTimeout(f, 100));
+            customSession.logAdBreakEnd(options);
+            // Another 100ms delay added after logPause is triggered to account for time spent on media session (total = +200ms).
+            await new Promise(f => setTimeout(f, 100));
+            customSession.logMediaSessionEnd(options);
+
+            // the 6th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
+            const mpMediaContentTimeSpent =
+                bond.args[5][0].options.customAttributes
+                    .media_content_time_spent;
+
+            // the mediaContentTimeSpent varies in value each test run by a millisecond or two (i,e value is could be 100ms, 101ms, 102ms)
+            // and we can't determine the exact value, hence the greaterThanOrEqual and lessThanOrEqual tests.
+            expect(mpMediaContentTimeSpent).to.greaterThanOrEqual(300);
+            expect(mpMediaContentTimeSpent).to.lessThanOrEqual(400);
+        });
     });
 
     describe('#logAdStart', () => {
@@ -956,8 +1076,11 @@ describe('MediaSession', () => {
             mpMedia.logMediaSessionEnd(options);
 
             // the 4th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
-            const mpMediaContentTimeSpent = bond.args[3][0].options.customAttributes.media_content_time_spent;
-            const mpMediaTimeSpent = bond.args[3][0].options.customAttributes.media_time_spent;
+            const mpMediaContentTimeSpent =
+                bond.args[3][0].options.customAttributes
+                    .media_content_time_spent;
+            const mpMediaTimeSpent =
+                bond.args[3][0].options.customAttributes.media_time_spent;
 
             expect(mpMediaContentTimeSpent).to.not.eql(mpMediaTimeSpent);
 
@@ -1030,8 +1153,11 @@ describe('MediaSession', () => {
             mpMedia.logMediaSessionEnd(options);
 
             // the 4th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
-            const mpMediaContentTimeSpent = bond.args[3][0].options.customAttributes.media_content_time_spent;
-            const mpMediaTimeSpent = bond.args[3][0].options.customAttributes.media_time_spent;
+            const mpMediaContentTimeSpent =
+                bond.args[3][0].options.customAttributes
+                    .media_content_time_spent;
+            const mpMediaTimeSpent =
+                bond.args[3][0].options.customAttributes.media_time_spent;
 
             expect(mpMediaContentTimeSpent).to.not.eql(mpMediaTimeSpent);
 
@@ -1378,6 +1504,7 @@ describe('MediaSession', () => {
                 song.streamType,
                 false,
                 true,
+                false,
                 mediaSessionAttributes,
             );
 
@@ -1402,6 +1529,7 @@ describe('MediaSession', () => {
                 song.streamType,
                 false,
                 true,
+                false,
                 {
                     session_name: 'amazing-current-session',
                     session_start_time: 'right-now',

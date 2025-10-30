@@ -89,6 +89,14 @@ export type AdBreak = {
      * Length of time of the complete ad break
      */
     duration: number;
+    /**
+     * Timestamp for AdBreak start playback
+     */
+    adBreakStartTimestamp?: number;
+    /**
+     * Timestamp for AdBreak end playback
+     */
+    adBreakEndTimestamp?: number;
 };
 
 /**
