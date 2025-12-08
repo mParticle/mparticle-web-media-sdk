@@ -60,7 +60,8 @@ const mediaSession = new MediaSession(
     true,                         // Log Media Event Toggle (true/false)
     {   
         "my_session_attribute": "My Session Attribute"
-    }    // (optional) Custom Session Attributes object used for each media event within the Media Session
+    },    // (optional) Custom Session Attributes object used for each media event within the Media Session
+    true  // (optional) Exclude Ad breaks from media content time
 )
 
 mediaSession.logMediaSessionStart();
