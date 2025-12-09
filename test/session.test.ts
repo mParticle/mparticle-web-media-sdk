@@ -956,8 +956,11 @@ describe('MediaSession', () => {
             mpMedia.logMediaSessionEnd(options);
 
             // the 4th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
-            const mpMediaContentTimeSpent = bond.args[3][0].options.customAttributes.media_content_time_spent;
-            const mpMediaTimeSpent = bond.args[3][0].options.customAttributes.media_time_spent;
+            const mpMediaContentTimeSpent =
+                bond.args[3][0].options.customAttributes
+                    .media_content_time_spent;
+            const mpMediaTimeSpent =
+                bond.args[3][0].options.customAttributes.media_time_spent;
 
             expect(mpMediaContentTimeSpent).to.not.eql(mpMediaTimeSpent);
 
@@ -1030,8 +1033,11 @@ describe('MediaSession', () => {
             mpMedia.logMediaSessionEnd(options);
 
             // the 4th event in bond.args is the Media Session Summary which contains the mediaContentTimeSpent and mediaTimeSpent.
-            const mpMediaContentTimeSpent = bond.args[3][0].options.customAttributes.media_content_time_spent;
-            const mpMediaTimeSpent = bond.args[3][0].options.customAttributes.media_time_spent;
+            const mpMediaContentTimeSpent =
+                bond.args[3][0].options.customAttributes
+                    .media_content_time_spent;
+            const mpMediaTimeSpent =
+                bond.args[3][0].options.customAttributes.media_time_spent;
 
             expect(mpMediaContentTimeSpent).to.not.eql(mpMediaTimeSpent);
 
