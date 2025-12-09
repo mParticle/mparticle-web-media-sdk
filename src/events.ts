@@ -37,7 +37,8 @@ export abstract class BaseEvent {
     /**
      * @hidden Abstract representation of a Base Event for the Server model in Core SDK
      */
-    abstract toEventAPIObject = (): void => {};
+
+    abstract toEventAPIObject(): EventAPIObject;
 }
 
 /**
@@ -116,9 +117,8 @@ export class MediaEvent extends BaseEvent {
         };
 
         if (typeof this.playheadPosition === 'number') {
-            sessionAttributes[
-                ValidMediaAttributeKeys.playheadPosition
-            ] = this.playheadPosition;
+            sessionAttributes[ValidMediaAttributeKeys.playheadPosition] =
+                this.playheadPosition;
         }
 
         return sessionAttributes;
@@ -131,139 +131,116 @@ export class MediaEvent extends BaseEvent {
         const eventAttributes: { [key: string]: string | number } = {};
 
         if (this.seekPosition) {
-            eventAttributes[
-                ValidMediaAttributeKeys.seekPosition
-            ] = this.seekPosition;
+            eventAttributes[ValidMediaAttributeKeys.seekPosition] =
+                this.seekPosition;
         }
 
         if (this.bufferDuration) {
-            eventAttributes[
-                ValidMediaAttributeKeys.bufferDuration
-            ] = this.bufferDuration;
+            eventAttributes[ValidMediaAttributeKeys.bufferDuration] =
+                this.bufferDuration;
         }
 
         if (this.bufferPercent) {
-            eventAttributes[
-                ValidMediaAttributeKeys.bufferPercent
-            ] = this.bufferPercent;
+            eventAttributes[ValidMediaAttributeKeys.bufferPercent] =
+                this.bufferPercent;
         }
 
         if (this.bufferPosition) {
-            eventAttributes[
-                ValidMediaAttributeKeys.bufferPosition
-            ] = this.bufferPosition;
+            eventAttributes[ValidMediaAttributeKeys.bufferPosition] =
+                this.bufferPosition;
         }
 
         // QoS
         if (this.qos) {
             if (typeof this.qos.bitRate === 'number') {
-                eventAttributes[
-                    ValidMediaAttributeKeys.qosBitrate
-                ] = this.qos.bitRate;
+                eventAttributes[ValidMediaAttributeKeys.qosBitrate] =
+                    this.qos.bitRate;
             }
             if (typeof this.qos.fps === 'number') {
-                eventAttributes[
-                    ValidMediaAttributeKeys.qosFramesPerSecond
-                ] = this.qos.fps;
+                eventAttributes[ValidMediaAttributeKeys.qosFramesPerSecond] =
+                    this.qos.fps;
             }
             if (typeof this.qos.startupTime === 'number') {
-                eventAttributes[
-                    ValidMediaAttributeKeys.qosStartupTime
-                ] = this.qos.startupTime;
+                eventAttributes[ValidMediaAttributeKeys.qosStartupTime] =
+                    this.qos.startupTime;
             }
             if (typeof this.qos.droppedFrames === 'number') {
-                eventAttributes[
-                    ValidMediaAttributeKeys.qosDroppedFrames
-                ] = this.qos.droppedFrames;
+                eventAttributes[ValidMediaAttributeKeys.qosDroppedFrames] =
+                    this.qos.droppedFrames;
             }
         }
 
         // Ad Content
         if (this.adContent) {
             if (this.adContent.title) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adTitle
-                ] = this.adContent.title;
+                eventAttributes[ValidMediaAttributeKeys.adTitle] =
+                    this.adContent.title;
             }
             if (this.adContent.id) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adId
-                ] = this.adContent.id;
+                eventAttributes[ValidMediaAttributeKeys.adId] =
+                    this.adContent.id;
             }
             if (this.adContent.advertiser) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adAdvertiserId
-                ] = this.adContent.advertiser;
+                eventAttributes[ValidMediaAttributeKeys.adAdvertiserId] =
+                    this.adContent.advertiser;
             }
             if (this.adContent.siteid) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adSiteId
-                ] = this.adContent.siteid;
+                eventAttributes[ValidMediaAttributeKeys.adSiteId] =
+                    this.adContent.siteid;
             }
             if (typeof this.adContent.placement === 'string') {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adPlacement
-                ] = this.adContent.placement;
+                eventAttributes[ValidMediaAttributeKeys.adPlacement] =
+                    this.adContent.placement;
             }
             if (typeof this.adContent.position === 'number') {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adPosition
-                ] = this.adContent.position;
+                eventAttributes[ValidMediaAttributeKeys.adPosition] =
+                    this.adContent.position;
             }
             if (this.adContent.duration) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adDuration
-                ] = this.adContent.duration;
+                eventAttributes[ValidMediaAttributeKeys.adDuration] =
+                    this.adContent.duration;
             }
             if (this.adContent.creative) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adCreative
-                ] = this.adContent.creative;
+                eventAttributes[ValidMediaAttributeKeys.adCreative] =
+                    this.adContent.creative;
             }
             if (this.adContent.campaign) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adCampaign
-                ] = this.adContent.campaign;
+                eventAttributes[ValidMediaAttributeKeys.adCampaign] =
+                    this.adContent.campaign;
             }
         }
 
         // Ad Break
         if (this.adBreak) {
             if (this.adBreak.id) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adBreakId
-                ] = this.adBreak.id;
+                eventAttributes[ValidMediaAttributeKeys.adBreakId] =
+                    this.adBreak.id;
             }
             if (this.adBreak.title) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adBreakTitle
-                ] = this.adBreak.title;
+                eventAttributes[ValidMediaAttributeKeys.adBreakTitle] =
+                    this.adBreak.title;
             }
             if (this.adBreak.duration) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.adBreakDuration
-                ] = this.adBreak.duration;
+                eventAttributes[ValidMediaAttributeKeys.adBreakDuration] =
+                    this.adBreak.duration;
             }
         }
 
         // Segments
         if (this.segment) {
             if (this.segment.title) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.segmentTitle
-                ] = this.segment.title;
+                eventAttributes[ValidMediaAttributeKeys.segmentTitle] =
+                    this.segment.title;
             }
 
             if (this.segment.index) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.segmentIndex
-                ] = this.segment.index;
+                eventAttributes[ValidMediaAttributeKeys.segmentIndex] =
+                    this.segment.index;
             }
 
             if (this.segment.duration) {
-                eventAttributes[
-                    ValidMediaAttributeKeys.segmentDuration
-                ] = this.segment.duration;
+                eventAttributes[ValidMediaAttributeKeys.segmentDuration] =
+                    this.segment.duration;
             }
         }
 
