@@ -34,5 +34,5 @@ jobs:
               uses: actions/upload-artifact@v4
               if: failure()
               with:
-                  name: npm-logs
+                  name: npm-logs-${{ github.job }}-${{ matrix.node-version || 'latest' }}-run${{ github.run_attempt }}
                   path: ~/.npm/_logs
