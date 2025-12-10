@@ -83,9 +83,9 @@
         "rollup-plugin-typescript": "^1.0.1",
         "sinon": "^11.1.2",
         "ts-node": "^10.2.1",
-        "typedoc": "^0.20.30",
+        "typedoc": "^0.28.15",
         "typedoc-default-themes": "https://github.com/mParticle/typedoc-default-themes.git#mp-custom",
-        "typescript": "^4.2.0"
+        "typescript": "^5.9.3"
     },
     "dependencies": {
         "@mparticle/web-sdk": "^2.9.14-rc.1",
