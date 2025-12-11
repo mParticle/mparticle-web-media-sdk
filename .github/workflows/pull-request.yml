@@ -9,7 +9,7 @@ jobs:
         continue-on-error: true # Prevents parallel job from being cancelled if all fail
         strategy:
             matrix:
-                node-version: [18.x, 20.x, 22.x, 24.x]
+                node-version: [20.x, 22.x, 24.x]
 
         steps:
             - name: Checkout
