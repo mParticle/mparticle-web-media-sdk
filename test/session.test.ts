@@ -82,7 +82,7 @@ describe('MediaSession', () => {
             ).to.eql(adBreak);
         });
 
-        it('should not resume after AdBreakEnd if user paused before ad break and excludeAdBreaksFromContentTime is true', async () => {
+        it('should not accumulate mediaContentTimeSpent after AdBreakEnd if user paused before ad break and excludeAdBreaksFromContentTime is true', async () => {
             const customSession: MediaSession = new MediaSession(
                 mp,
                 song.contentId,
@@ -240,7 +240,7 @@ describe('MediaSession', () => {
             expect(bond.args[0][0].options.currentPlayheadPosition).to.eq(32);
         });
 
-        it('should pause mediaContentTimeSpent when excludeAdBreaksFromContentTime is true', async () => {
+        it('should pause mediaContentTimeSpent when logging ad breaks when excludeAdBreaksFromContentTime is true', async () => {
             const mediaSessionAttributes = {
                 session_name: 'amazing-current-session',
                 session_start_time: 'right-now',
@@ -360,7 +360,7 @@ describe('MediaSession', () => {
             expect(mpMediaContentTimeSpent).to.lessThanOrEqual(400);
         });
 
-        it('should not resume after AdBreakEnd if user paused during ad break and excludeAdBreaksFromContentTime is true', async () => {
+        it('should not accumulate mediaContentTimeSpent after AdBreakEnd if user paused during ad break and excludeAdBreaksFromContentTime is true', async () => {
             const mediaSessionAttributes = {
                 session_name: 'amazing-current-session',
                 session_start_time: 'right-now',
