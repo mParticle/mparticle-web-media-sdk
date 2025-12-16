@@ -70,13 +70,18 @@ jobs:
             - build-and-test
             - create-release-branch
             - confirm-public-repo-master-branch
+        # OIDC permissions for npm trusted publishing
+        permissions:
+          contents: write
+          issues: write
+          pull-requests: write
+          id-token: write # Required for OIDC authentication with npm
         env:
             GITHUB_TOKEN: ${{ secrets.MP_SEMANTIC_RELEASE_BOT }}
             GIT_AUTHOR_NAME: mparticle-automation
             GIT_AUTHOR_EMAIL: developers@mparticle.com
             GIT_COMMITTER_NAME: mparticle-automation
             GIT_COMMITTER_EMAIL: developers@mparticle.com
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
         steps:
             - name: Checkout public master branch
@@ -100,9 +105,13 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: 14.x
+                  registry-url: 'https://registry.npmjs.org'
 
             - name: Install dependencies
               run: npm ci
+
+            - name: Ensure npm CLI supports OIDC
+              run: npm install -g npm@latest
 
             - name: Release --dry-run
               if: ${{ github.event.inputs.dryRun == 'true'}}
