@@ -21,12 +21,12 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: NPM install ${{ matrix.node-version }}
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: 14.x
+                  node-version: 24.x
 
             - name: Run NPM CI
               run: npm ci
@@ -39,7 +39,7 @@ jobs:
               run: npm run test
 
             - name: Archive npm failure logs
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: failure()
               with:
                   name: npm-logs
@@ -53,7 +53,7 @@ jobs:
             - confirm-public-repo-master-branch
         steps:
             - name: Checkout development branch
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   repository: mparticle/mparticle-web-media-sdk
                   ref: development
@@ -85,7 +85,7 @@ jobs:
 
         steps:
             - name: Checkout public master branch
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
                   ref: master
@@ -102,9 +102,9 @@ jobs:
               run: |
                   git pull origin release/${{ github.run_number }}
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: 14.x
+                  node-version: 24.x
                   registry-url: 'https://registry.npmjs.org'
 
             - name: Install dependencies
@@ -123,7 +123,7 @@ jobs:
                   npx semantic-release
 
             - name: Archive npm failure logs
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: failure()
               with:
                   name: npm-logs
@@ -137,10 +137,10 @@ jobs:
     sync-repository:
         name: Sync repositories
         needs: release
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout master branch
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
                   repository: ${{ github.repository }}

@@ -99,8 +99,4 @@ updates:
     - 8.2.1
     - 8.3.0
   - dependency-name: "@types/sinon"
-    versions:
-    - 9.0.10
   - dependency-name: sinon
-    versions:
-    - 10.0.0
