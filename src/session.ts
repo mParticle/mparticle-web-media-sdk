@@ -19,6 +19,8 @@ import {
 
 import { uuid } from './utils';
 
+type PlaybackState = 'playing' | 'pausedByUser' | 'pausedByAdBreak';
+
 /**
  * The MediaSession class is the primary class that will be used to engage with the mParticle Media SDK.
  *
@@ -110,6 +112,39 @@ export class MediaSession {
             return this.storedPlaybackTime;
         }
     }
+    /**
+     * Pauses content-time accumulation if ad break exclusion is enabled.
+     * Sets playback state to pausedByAdBreak when a pause is performed.
+     */
+    private pauseContentTimeIfAdBreakExclusionEnabled() {
+        if (
+            !this.excludeAdBreaksFromContentTime ||
+            this.playbackState !== 'playing'
+        ) {
+            return;
+        }
+        if (this.currentPlaybackStartTimestamp) {
+            this.storedPlaybackTime +=
+                Date.now() - this.currentPlaybackStartTimestamp;
+            this.currentPlaybackStartTimestamp = undefined;
+            this.playbackState = 'pausedByAdBreak';
+        }
+    }
+    /**
+     * Resumes content-time accumulation if ad break exclusion is enabled and
+     * the previous pause was caused by an ad break (not by user).
+     * Sets playback state to playing on resume.
+     */
+    private resumeContentTimeIfAdBreakExclusionEnabled() {
+        if (
+            !this.excludeAdBreaksFromContentTime ||
+            this.playbackState !== 'pausedByAdBreak'
+        ) {
+            return;
+        }
+        this.currentPlaybackStartTimestamp = Date.now();
+        this.playbackState = 'playing';
+    }
     mediaContentCompleteLimit = 100; //Percentage of content that must be progressed through to mark as completed
     private mediaContentComplete = false; //Updates to true triggered by logMediaContentEnd, 0 or false if complete milestone not reached.
     private mediaSessionSegmentTotal = 0; //number incremented with each logSegmentStart
@@ -123,6 +158,8 @@ export class MediaSession {
     private mediaSessionAdObjects: string[] = []; //array of unique identifiers for ads played in the media session - append ad_content_ID on logAdStart
 
     private sessionSummarySent = false; // Ensures we only send the summary event once
+    // Tracks whether playback was playing, paused by user, or paused by an ad break
+    private playbackState: PlaybackState = 'pausedByUser';
 
     /**
      * Initializes the Media Session object. This does not start a session, you can do so by calling `logMediaSessionStart`.
@@ -135,6 +172,7 @@ export class MediaSession {
      * @param logPageEvent A flag that toggles sending mParticle Events to Core SDK
      * @param logMediaEvent A flag that toggles sending Media Events to Core SDK
      * @param mediaSessionAttributes (optional) A set of custom attributes to attach to all media Events created by a Session
+     * @param excludeAdBreaksFromContentTime A flag to exclude ad-break time from media content time (default false)
      */
     constructor(
         readonly mparticleInstance: MpSDKInstance,
@@ -146,6 +184,7 @@ export class MediaSession {
         public logPageEvent = false,
         public logMediaEvent = true,
         public mediaSessionAttributes?: ModelAttributes,
+        public excludeAdBreaksFromContentTime = false,
     ) {
         this.mediaSessionStartTimestamp = Date.now();
     }
@@ -317,6 +356,8 @@ export class MediaSession {
      */
     logAdBreakStart(adBreakContent: AdBreak, options?: Options) {
         this.adBreak = adBreakContent;
+        // If configured, pause content-time accumulation during ad breaks
+        this.pauseContentTimeIfAdBreakExclusionEnabled();
 
         const event = this.createMediaEvent(
             MediaEventType.AdBreakStart,
@@ -334,6 +375,7 @@ export class MediaSession {
      * @category Advertising
      */
     logAdBreakEnd(options?: Options) {
+        this.resumeContentTimeIfAdBreakExclusionEnabled();
         const event = this.createMediaEvent(MediaEventType.AdBreakEnd, options);
         event.adBreak = this.adBreak;
 
@@ -472,6 +514,7 @@ export class MediaSession {
         if (!this.currentPlaybackStartTimestamp) {
             this.currentPlaybackStartTimestamp = Date.now();
         }
+        this.playbackState = 'playing';
 
         const event = this.createMediaEvent(MediaEventType.Play, options);
         this.logEvent(event);
@@ -489,6 +532,7 @@ export class MediaSession {
                 (Date.now() - this.currentPlaybackStartTimestamp);
             this.currentPlaybackStartTimestamp = undefined;
         }
+        this.playbackState = 'pausedByUser';
 
         const event = this.createMediaEvent(MediaEventType.Pause, options);
         this.logEvent(event);
