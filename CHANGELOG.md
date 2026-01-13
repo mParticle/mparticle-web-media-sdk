@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/mParticle/mparticle-web-media-sdk/compare/v1.4.10...v1.5.0) (2026-01-13)
+
+
+### Features
+
+* Pause mediaContentTimeSpent calculation on ad breaks ([#787](https://github.com/mParticle/mparticle-web-media-sdk/issues/787)) ([0502b88](https://github.com/mParticle/mparticle-web-media-sdk/commit/0502b88bfb45c1c9ade27a7c4717ac67cb9b7cd1))
+
 ## Releases
 
 #### 1.4.10 - 2025-07-07
