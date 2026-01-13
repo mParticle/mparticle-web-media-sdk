@@ -1,454 +1,20 @@
-'use strict';
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null)
-        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
             s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
         }
         return t;
     };
     return __assign.apply(this, arguments);
 };
-
-typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-};
-
-// This will live in a declaration file in core sdk
-// once we set that up.
-var MessageType;
-(function (MessageType) {
-    MessageType[MessageType["PageEvent"] = 4] = "PageEvent";
-    MessageType[MessageType["Media"] = 20] = "Media";
-})(MessageType || (MessageType = {}));
-var EventType;
-(function (EventType) {
-    EventType[EventType["Media"] = 9] = "Media";
-})(EventType || (EventType = {}));
-var MediaEventType;
-(function (MediaEventType) {
-    MediaEventType[MediaEventType["Play"] = 23] = "Play";
-    MediaEventType[MediaEventType["Pause"] = 24] = "Pause";
-    MediaEventType[MediaEventType["ContentEnd"] = 25] = "ContentEnd";
-    MediaEventType[MediaEventType["SessionStart"] = 30] = "SessionStart";
-    MediaEventType[MediaEventType["SessionEnd"] = 31] = "SessionEnd";
-    MediaEventType[MediaEventType["SeekStart"] = 32] = "SeekStart";
-    MediaEventType[MediaEventType["SeekEnd"] = 33] = "SeekEnd";
-    MediaEventType[MediaEventType["BufferStart"] = 34] = "BufferStart";
-    MediaEventType[MediaEventType["BufferEnd"] = 35] = "BufferEnd";
-    MediaEventType[MediaEventType["UpdatePlayheadPosition"] = 36] = "UpdatePlayheadPosition";
-    MediaEventType[MediaEventType["AdClick"] = 37] = "AdClick";
-    MediaEventType[MediaEventType["AdBreakStart"] = 38] = "AdBreakStart";
-    MediaEventType[MediaEventType["AdBreakEnd"] = 39] = "AdBreakEnd";
-    MediaEventType[MediaEventType["AdStart"] = 40] = "AdStart";
-    MediaEventType[MediaEventType["AdEnd"] = 41] = "AdEnd";
-    MediaEventType[MediaEventType["AdSkip"] = 42] = "AdSkip";
-    MediaEventType[MediaEventType["SegmentStart"] = 43] = "SegmentStart";
-    MediaEventType[MediaEventType["SegmentEnd"] = 44] = "SegmentEnd";
-    MediaEventType[MediaEventType["SegmentSkip"] = 45] = "SegmentSkip";
-    MediaEventType[MediaEventType["UpdateQoS"] = 46] = "UpdateQoS";
-    MediaEventType[MediaEventType["SessionSummary"] = 47] = "SessionSummary";
-    MediaEventType[MediaEventType["SegmentSummary"] = 48] = "SegmentSummary";
-    MediaEventType[MediaEventType["AdSummary"] = 49] = "AdSummary";
-})(MediaEventType || (MediaEventType = {}));
-var MediaEventName = {
-    Play: 'Play',
-    Pause: 'Pause',
-    ContentEnd: 'Media Content End',
-    SessionStart: 'Media Session Start',
-    SessionEnd: 'Media Session End',
-    SeekStart: 'Seek Start',
-    SeekEnd: 'Seek End',
-    BufferStart: 'Buffer Start',
-    BufferEnd: 'Buffer End',
-    UpdatePlayheadPosition: 'Update Playhead Position',
-    AdClick: 'Ad Click',
-    AdBreakStart: 'Ad Break Start',
-    AdBreakEnd: 'Ad Break End',
-    AdStart: 'Ad Start',
-    AdEnd: 'Ad End',
-    AdSkip: 'Ad Skip',
-    SegmentStart: 'Segment Start',
-    SegmentEnd: 'Segment End',
-    SegmentSkip: 'Segment Skip',
-    UpdateQoS: 'Update QoS',
-    SessionSummary: 'Media Session Summary',
-    SegmentSummary: 'Media Segment Summary',
-    AdSummary: 'Media Ad Summary',
-};
-var MediaContentType;
-(function (MediaContentType) {
-    MediaContentType["Video"] = "Video";
-    MediaContentType["Audio"] = "Audio";
-})(MediaContentType || (MediaContentType = {}));
-var MediaStreamType;
-(function (MediaStreamType) {
-    MediaStreamType["LiveStream"] = "LiveStream";
-    MediaStreamType["OnDemand"] = "OnDemand";
-    MediaStreamType["Linear"] = "Linear";
-    MediaStreamType["Podcast"] = "Podcast";
-    MediaStreamType["Audiobook"] = "Audiobook";
-})(MediaStreamType || (MediaStreamType = {}));
-var ValidMediaAttributeKeys = {
-    mediaSessionId: 'media_session_id',
-    playheadPosition: 'playhead_position',
-    id: 'id',
-    //MediaConent
-    contentTitle: 'content_title',
-    contentId: 'content_id',
-    duration: 'content_duration',
-    streamType: 'stream_type',
-    contentType: 'content_type',
-    //Seek
-    seekPosition: 'seek_position',
-    //Buffer
-    bufferDuration: 'buffer_duration',
-    bufferPercent: 'buffer_percent',
-    bufferPosition: 'buffer_position',
-    //QoS
-    qosBitrate: 'qos_bitrate',
-    qosFramesPerSecond: 'qos_fps',
-    qosStartupTime: 'qos_startup_time',
-    qosDroppedFrames: 'qos_dropped_frames',
-    //MediaAd
-    adTitle: 'ad_content_title',
-    adDuration: 'ad_content_duration',
-    adId: 'ad_content_id',
-    adAdvertiserId: 'ad_content_advertiser',
-    adCampaign: 'ad_content_campaign',
-    adCreative: 'ad_content_creative',
-    adPlacement: 'ad_content_placement',
-    adPosition: 'ad_content_position',
-    adSiteId: 'ad_content_site_id',
-    //MediaAdBreak
-    adBreakTitle: 'ad_break_title',
-    adBreakDuration: 'ad_break_duration',
-    adBreakPlaybackTime: 'ad_break_playback_time',
-    adBreakId: 'ad_break_id',
-    //Segment
-    segmentTitle: 'segment_title',
-    segmentIndex: 'segment_index',
-    segmentDuration: 'segment_duration',
-    // Session Summary Attributes
-    mediaSessionIdKey: 'media_session_id',
-    startTimestampKey: 'media_session_start_time',
-    endTimestampKey: 'media_session_end_time',
-    contentIdKey: 'content_id',
-    contentTitleKey: 'content_title',
-    mediaTimeSpentKey: 'media_time_spent',
-    contentTimeSpentKey: 'media_content_time_spent',
-    contentCompleteKey: 'media_content_complete',
-    totalSegmentsKey: 'media_session_segment_total',
-    totalAdTimeSpentKey: 'media_total_ad_time_spent',
-    adTimeSpentRateKey: 'media_ad_time_spent_rate',
-    totalAdsKey: 'media_session_ad_total',
-    adIDsKey: 'media_session_ad_objects',
-    // Ad Summary Attributes
-    adBreakIdKey: 'ad_break_id',
-    adContentIdKey: 'ad_content_id',
-    adContentStartTimestampKey: 'ad_content_start_time',
-    adContentEndTimestampKey: 'ad_content_end_time',
-    adContentTitleKey: 'ad_content_title',
-    adContentSkippedKey: 'ad_skipped',
-    adContentCompletedKey: 'ad_completed',
-    // Segment Summary Attributes
-    segmentIndexKey: 'segment_index',
-    segmentTitleKey: 'segment_title',
-    segmentStartTimestampKey: 'segment_start_time',
-    segmentEndTimestampKey: 'segment_end_time',
-    segmentTimeSpentKey: 'media_segment_time_spent',
-    segmentSkippedKey: 'segment_skipped',
-    segmentCompletedKey: 'segment_completed',
-};
-
-var uuid = function () {
-    // Thanks to StackOverflow user Briguy37
-    // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (Math.random() * 16) | 0, v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-};
-var getNameFromType = function (type) {
-    return MediaEventName[MediaEventType[type]];
-};
-
-/**
- * Represents a Base event for mParticle Core
- */
-var BaseEvent = /** @class */ (function () {
-    /**
-     *
-     * @param name The name of the event
-     * @param eventType an Event Type that corresponds to [EventType](https://github.com/mParticle/mparticle-web-sdk/blob/master/src/types.js) in Core SDK
-     * @param messageType A message type that corresponds to MessageType
-     */
-    function BaseEvent(name, eventType, messageType) {
-        this.name = name;
-        this.eventType = eventType;
-        this.messageType = messageType;
-    }
-    return BaseEvent;
-}());
-/**
- * Represents a single media event. Generally you won't call this class directly. The Media SDK calls this class internally when you invoke methods on [[MediaSession]].
- *
- * ## Custom Attributes
- * By default, a `MediaEvent` will have certain required attributes,
- * such as `custom_media_id` and `custom_media_title`, etc. However,
- * if you need to log something custom, such as `content_season_number`
- * or `player_name`, this can be included in the `customAttributes` object .
- *
- * These `customAttributes` are attributes unique to the media event
- * but can be passed through the `MediaSession` via the various log
- * functions as an `options` parameter.
- */
-var MediaEvent = /** @class */ (function (_super) {
-    __extends(MediaEvent, _super);
-    /**
-     * Constructor for Media Event
-     * @param type Type of action being performed, i.e. play, pause, seek, etc.
-     * @param contentTitle Title of the Media Content
-     * @param contentId Unique Identifier for the Media Content
-     * @param duration Length of time for the Media Content
-     * @param contentType Content Type. i.e. video vs audio
-     * @param streamType Stream Type i.e. live vs on demand
-     * @param mediaSessionID Session ID from media Session
-     * @param customAttributes A dictionary of custom attributes
-     * @returns An instance of a Media Event
-     */
-    function MediaEvent(eventType, contentTitle, contentId, duration, contentType, streamType, mediaSessionID, options) {
-        if (options === void 0) { options = {}; }
-        var _this = _super.call(this, getNameFromType(eventType), eventType, MessageType.Media) || this;
-        _this.eventType = eventType;
-        _this.contentTitle = contentTitle;
-        _this.contentId = contentId;
-        _this.duration = duration;
-        _this.contentType = contentType;
-        _this.streamType = streamType;
-        _this.mediaSessionID = mediaSessionID;
-        _this.options = options;
-        _this.id = uuid();
-        /**
-         * @hidden Returns custom attributes
-         */
-        _this.getCustomAttributes = function () {
-            return _this.options.customAttributes;
-        };
-        /**
-         * @hidden Returns session related event attributes
-         */
-        _this.getSessionAttributes = function () {
-            var sessionAttributes = {
-                content_title: _this.contentTitle,
-                content_duration: _this.duration,
-                content_id: _this.contentId,
-                content_type: MediaContentType[_this.contentType],
-                stream_type: MediaStreamType[_this.streamType],
-                media_session_id: _this.mediaSessionID,
-            };
-            if (typeof _this.playheadPosition === 'number') {
-                sessionAttributes[ValidMediaAttributeKeys.playheadPosition] =
-                    _this.playheadPosition;
-            }
-            return sessionAttributes;
-        };
-        /**
-         * @hidden Representation of the Media Event as a Custom Event
-         */
-        _this.getEventAttributes = function () {
-            var eventAttributes = {};
-            if (_this.seekPosition) {
-                eventAttributes[ValidMediaAttributeKeys.seekPosition] =
-                    _this.seekPosition;
-            }
-            if (_this.bufferDuration) {
-                eventAttributes[ValidMediaAttributeKeys.bufferDuration] =
-                    _this.bufferDuration;
-            }
-            if (_this.bufferPercent) {
-                eventAttributes[ValidMediaAttributeKeys.bufferPercent] =
-                    _this.bufferPercent;
-            }
-            if (_this.bufferPosition) {
-                eventAttributes[ValidMediaAttributeKeys.bufferPosition] =
-                    _this.bufferPosition;
-            }
-            // QoS
-            if (_this.qos) {
-                if (typeof _this.qos.bitRate === 'number') {
-                    eventAttributes[ValidMediaAttributeKeys.qosBitrate] =
-                        _this.qos.bitRate;
-                }
-                if (typeof _this.qos.fps === 'number') {
-                    eventAttributes[ValidMediaAttributeKeys.qosFramesPerSecond] =
-                        _this.qos.fps;
-                }
-                if (typeof _this.qos.startupTime === 'number') {
-                    eventAttributes[ValidMediaAttributeKeys.qosStartupTime] =
-                        _this.qos.startupTime;
-                }
-                if (typeof _this.qos.droppedFrames === 'number') {
-                    eventAttributes[ValidMediaAttributeKeys.qosDroppedFrames] =
-                        _this.qos.droppedFrames;
-                }
-            }
-            // Ad Content
-            if (_this.adContent) {
-                if (_this.adContent.title) {
-                    eventAttributes[ValidMediaAttributeKeys.adTitle] =
-                        _this.adContent.title;
-                }
-                if (_this.adContent.id) {
-                    eventAttributes[ValidMediaAttributeKeys.adId] =
-                        _this.adContent.id;
-                }
-                if (_this.adContent.advertiser) {
-                    eventAttributes[ValidMediaAttributeKeys.adAdvertiserId] =
-                        _this.adContent.advertiser;
-                }
-                if (_this.adContent.siteid) {
-                    eventAttributes[ValidMediaAttributeKeys.adSiteId] =
-                        _this.adContent.siteid;
-                }
-                if (typeof _this.adContent.placement === 'string') {
-                    eventAttributes[ValidMediaAttributeKeys.adPlacement] =
-                        _this.adContent.placement;
-                }
-                if (typeof _this.adContent.position === 'number') {
-                    eventAttributes[ValidMediaAttributeKeys.adPosition] =
-                        _this.adContent.position;
-                }
-                if (_this.adContent.duration) {
-                    eventAttributes[ValidMediaAttributeKeys.adDuration] =
-                        _this.adContent.duration;
-                }
-                if (_this.adContent.creative) {
-                    eventAttributes[ValidMediaAttributeKeys.adCreative] =
-                        _this.adContent.creative;
-                }
-                if (_this.adContent.campaign) {
-                    eventAttributes[ValidMediaAttributeKeys.adCampaign] =
-                        _this.adContent.campaign;
-                }
-            }
-            // Ad Break
-            if (_this.adBreak) {
-                if (_this.adBreak.id) {
-                    eventAttributes[ValidMediaAttributeKeys.adBreakId] =
-                        _this.adBreak.id;
-                }
-                if (_this.adBreak.title) {
-                    eventAttributes[ValidMediaAttributeKeys.adBreakTitle] =
-                        _this.adBreak.title;
-                }
-                if (_this.adBreak.duration) {
-                    eventAttributes[ValidMediaAttributeKeys.adBreakDuration] =
-                        _this.adBreak.duration;
-                }
-            }
-            // Segments
-            if (_this.segment) {
-                if (_this.segment.title) {
-                    eventAttributes[ValidMediaAttributeKeys.segmentTitle] =
-                        _this.segment.title;
-                }
-                if (_this.segment.index) {
-                    eventAttributes[ValidMediaAttributeKeys.segmentIndex] =
-                        _this.segment.index;
-                }
-                if (_this.segment.duration) {
-                    eventAttributes[ValidMediaAttributeKeys.segmentDuration] =
-                        _this.segment.duration;
-                }
-            }
-            return eventAttributes;
-        };
-        /**
-         * Returns a dictionary of attributes
-         * @returns Object
-         */
-        _this.getAttributes = function () {
-            return __assign(__assign(__assign({}, _this.getSessionAttributes()), _this.getEventAttributes()), _this.getCustomAttributes());
-        };
-        /**
-         * Representation of the Media Event as a Page Event for the core SDK
-         * @returns Object
-         */
-        _this.toPageEvent = function () {
-            return {
-                name: _this.name,
-                eventType: EventType.Media,
-                messageType: MessageType.PageEvent,
-                data: _this.getAttributes(),
-            };
-        };
-        /**
-         * @hidden Representation of the Media Event for the server model
-         */
-        _this.toEventAPIObject = function () {
-            return {
-                // Core Event Attributes
-                EventName: _this.name,
-                EventCategory: _this.eventType,
-                EventDataType: _this.messageType,
-                AdContent: _this.adContent,
-                AdBreak: _this.adBreak,
-                Segment: _this.segment,
-                SeekPosition: _this.seekPosition,
-                BufferDuration: _this.bufferDuration,
-                BufferPercent: _this.bufferPercent,
-                BufferPosition: _this.bufferPosition,
-                PlayheadPosition: _this.playheadPosition,
-                QoS: _this.qos,
-                ContentTitle: _this.contentTitle,
-                ContentId: _this.contentId,
-                Duration: _this.duration,
-                ContentType: MediaContentType[_this.contentType],
-                StreamType: MediaStreamType[_this.streamType],
-                EventAttributes: _this.options.customAttributes,
-            };
-        };
-        _this.playheadPosition = options === null || options === void 0 ? void 0 : options.currentPlayheadPosition;
-        _this.customAttributes = options === null || options === void 0 ? void 0 : options.customAttributes;
-        return _this;
-    }
-    return MediaEvent;
-}(BaseEvent));
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MediaSession = void 0;
+var events_1 = require("./events");
+var types_1 = require("./types");
+var utils_1 = require("./utils");
 /**
  * The MediaSession class is the primary class that will be used to engage with the mParticle Media SDK.
  *
@@ -622,7 +188,7 @@ var MediaSession = /** @class */ (function () {
             currentPlayheadPosition: this.currentPlayheadPosition,
             customAttributes: this.customAttributes,
         };
-        return new MediaEvent(eventType, this.title, this.contentId, this.duration, this.contentType, this.streamType, this.sessionId, options);
+        return new events_1.MediaEvent(eventType, this.title, this.contentId, this.duration, this.contentType, this.streamType, this.sessionId, options);
     };
     /**
      * Sends MediaEvent to CoreSDK depending on if [logMediaEvent] or [logPageEvent] are set
@@ -643,7 +209,7 @@ var MediaSession = /** @class */ (function () {
             this.mparticleInstance.logBaseEvent(event);
         }
         if (this.logPageEvent) {
-            if (event.eventType !== MediaEventType.UpdatePlayheadPosition) {
+            if (event.eventType !== types_1.MediaEventType.UpdatePlayheadPosition) {
                 var mpEvent = event.toPageEvent();
                 this.mparticleInstance.logBaseEvent(mpEvent);
             }
@@ -676,8 +242,8 @@ var MediaSession = /** @class */ (function () {
             content_title: this.title,
             content_duration: this.duration,
             content_id: this.contentId,
-            content_type: MediaContentType[this.contentType],
-            stream_type: MediaStreamType[this.streamType],
+            content_type: types_1.MediaContentType[this.contentType],
+            stream_type: types_1.MediaStreamType[this.streamType],
             media_session_id: this.sessionId,
         };
         if (this.currentPlayheadPosition) {
@@ -691,9 +257,9 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logMediaSessionStart = function (options) {
-        this._sessionId = uuid();
+        this._sessionId = (0, utils_1.uuid)();
         this.mediaSessionStartTimestamp = Date.now();
-        var event = this.createMediaEvent(MediaEventType.SessionStart, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SessionStart, options);
         this.logEvent(event);
     };
     /**
@@ -702,7 +268,7 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logMediaSessionEnd = function (options) {
-        var event = this.createMediaEvent(MediaEventType.SessionEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SessionEnd, options);
         this.logEvent(event);
         this.logSessionSummary();
     };
@@ -720,7 +286,7 @@ var MediaSession = /** @class */ (function () {
                     (Date.now() - this.currentPlaybackStartTimestamp);
             this.currentPlaybackStartTimestamp = undefined;
         }
-        var event = this.createMediaEvent(MediaEventType.ContentEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.ContentEnd, options);
         this.logEvent(event);
     };
     /**
@@ -733,7 +299,7 @@ var MediaSession = /** @class */ (function () {
         this.adBreak = adBreakContent;
         // If configured, pause content-time accumulation during ad breaks
         this.pauseContentTimeIfAdBreakExclusionEnabled();
-        var event = this.createMediaEvent(MediaEventType.AdBreakStart, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.AdBreakStart, options);
         event.adBreak = adBreakContent;
         this.logEvent(event);
     };
@@ -744,7 +310,7 @@ var MediaSession = /** @class */ (function () {
      */
     MediaSession.prototype.logAdBreakEnd = function (options) {
         this.resumeContentTimeIfAdBreakExclusionEnabled();
-        var event = this.createMediaEvent(MediaEventType.AdBreakEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.AdBreakEnd, options);
         event.adBreak = this.adBreak;
         this.logEvent(event);
         this.adBreak = undefined;
@@ -760,7 +326,7 @@ var MediaSession = /** @class */ (function () {
         this.mediaSessionAdObjects.push(adContent.id);
         this.adContent = adContent;
         this.adContent.adStartTimestamp = Date.now();
-        var event = this.createMediaEvent(MediaEventType.AdStart, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.AdStart, options);
         event.adContent = adContent;
         this.logEvent(event);
     };
@@ -779,7 +345,7 @@ var MediaSession = /** @class */ (function () {
                 this.adContent.adEndTimestamp -
                     this.adContent.adStartTimestamp;
         }
-        var event = this.createMediaEvent(MediaEventType.AdEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.AdEnd, options);
         event.adContent = this.adContent;
         this.logEvent(event);
         this.logAdSummary();
@@ -799,7 +365,7 @@ var MediaSession = /** @class */ (function () {
                 this.adContent.adEndTimestamp -
                     this.adContent.adStartTimestamp;
         }
-        var event = this.createMediaEvent(MediaEventType.AdSkip, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.AdSkip, options);
         event.adContent = this.adContent;
         this.logEvent(event);
         this.logAdSummary();
@@ -811,7 +377,7 @@ var MediaSession = /** @class */ (function () {
      */
     MediaSession.prototype.logAdClick = function (adContent, options) {
         this.adContent = adContent;
-        var event = this.createMediaEvent(MediaEventType.AdClick, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.AdClick, options);
         event.adContent = this.adContent;
         this.logEvent(event);
     };
@@ -824,7 +390,7 @@ var MediaSession = /** @class */ (function () {
      * @category Buffering
      */
     MediaSession.prototype.logBufferStart = function (bufferDuration, bufferPercent, bufferPosition, options) {
-        var event = this.createMediaEvent(MediaEventType.BufferStart, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.BufferStart, options);
         event.bufferDuration = bufferDuration;
         event.bufferPercent = bufferPercent;
         event.bufferPosition = bufferPosition;
@@ -839,7 +405,7 @@ var MediaSession = /** @class */ (function () {
      * @category Buffering
      */
     MediaSession.prototype.logBufferEnd = function (bufferDuration, bufferPercent, bufferPosition, options) {
-        var event = this.createMediaEvent(MediaEventType.BufferEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.BufferEnd, options);
         event.bufferDuration = bufferDuration;
         event.bufferPercent = bufferPercent;
         event.bufferPosition = bufferPosition;
@@ -855,7 +421,7 @@ var MediaSession = /** @class */ (function () {
             this.currentPlaybackStartTimestamp = Date.now();
         }
         this.playbackState = 'playing';
-        var event = this.createMediaEvent(MediaEventType.Play, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.Play, options);
         this.logEvent(event);
     };
     /**
@@ -871,7 +437,7 @@ var MediaSession = /** @class */ (function () {
             this.currentPlaybackStartTimestamp = undefined;
         }
         this.playbackState = 'pausedByUser';
-        var event = this.createMediaEvent(MediaEventType.Pause, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.Pause, options);
         this.logEvent(event);
     };
     /**
@@ -884,7 +450,7 @@ var MediaSession = /** @class */ (function () {
         this.mediaSessionSegmentTotal += 1;
         segment.segmentStartTimestamp = Date.now();
         this.segment = segment;
-        var event = this.createMediaEvent(MediaEventType.SegmentStart, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SegmentStart, options);
         event.segment = segment;
         this.logEvent(event);
     };
@@ -900,7 +466,7 @@ var MediaSession = /** @class */ (function () {
             this.segment.segmentCompleted = true;
             this.segment.segmentSkipped = false;
         }
-        var event = this.createMediaEvent(MediaEventType.SegmentEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SegmentEnd, options);
         event.segment = this.segment;
         this.logEvent(event);
         this.logSegmentSummary();
@@ -917,7 +483,7 @@ var MediaSession = /** @class */ (function () {
             this.segment.segmentSkipped = true;
             this.segment.segmentCompleted = false;
         }
-        var event = this.createMediaEvent(MediaEventType.SegmentSkip, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SegmentSkip, options);
         event.segment = this.segment;
         this.logEvent(event);
         this.logSegmentSummary();
@@ -929,7 +495,7 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logSeekStart = function (seekPosition, options) {
-        var event = this.createMediaEvent(MediaEventType.SeekStart, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SeekStart, options);
         event.seekPosition = seekPosition;
         this.logEvent(event);
     };
@@ -940,7 +506,7 @@ var MediaSession = /** @class */ (function () {
      * @category Media
      */
     MediaSession.prototype.logSeekEnd = function (seekPosition, options) {
-        var event = this.createMediaEvent(MediaEventType.SeekEnd, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.SeekEnd, options);
         event.seekPosition = seekPosition;
         this.logEvent(event);
     };
@@ -951,7 +517,7 @@ var MediaSession = /** @class */ (function () {
      */
     MediaSession.prototype.logPlayheadPosition = function (playheadPosition) {
         this.currentPlayheadPosition = playheadPosition;
-        var event = this.createMediaEvent(MediaEventType.UpdatePlayheadPosition);
+        var event = this.createMediaEvent(types_1.MediaEventType.UpdatePlayheadPosition);
         event.playheadPosition = playheadPosition;
         this.logEvent(event);
     };
@@ -963,7 +529,7 @@ var MediaSession = /** @class */ (function () {
      */
     MediaSession.prototype.logQoS = function (qos, options) {
         this.currentQoS = __assign(__assign({}, this.currentQoS), qos);
-        var event = this.createMediaEvent(MediaEventType.UpdateQoS, options);
+        var event = this.createMediaEvent(types_1.MediaEventType.UpdateQoS, options);
         event.qos = __assign({}, this.currentQoS);
         this.logEvent(event);
     };
@@ -989,8 +555,8 @@ var MediaSession = /** @class */ (function () {
     MediaSession.prototype.createPageEvent = function (eventName, attributes) {
         return {
             name: eventName,
-            eventType: EventType.Media,
-            messageType: MessageType.PageEvent,
+            eventType: types_1.EventType.Media,
+            messageType: types_1.MessageType.PageEvent,
             data: __assign(__assign(__assign({}, this.getAttributes()), this.getQoSAttributes()), attributes),
         };
     };
@@ -1047,37 +613,37 @@ var MediaSession = /** @class */ (function () {
             }
             // tslint:disable-next-line: no-any
             var customAttributes = {};
-            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.mediaSessionIdKey] =
                 this.sessionId;
-            customAttributes[ValidMediaAttributeKeys.startTimestampKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.startTimestampKey] =
                 this.mediaSessionStartTimestamp;
-            customAttributes[ValidMediaAttributeKeys.endTimestampKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.endTimestampKey] =
                 this.mediaSessionEndTimestamp;
-            customAttributes[ValidMediaAttributeKeys.contentIdKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.contentIdKey] =
                 this.contentId;
-            customAttributes[ValidMediaAttributeKeys.contentTitleKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.contentTitleKey] =
                 this.title;
-            customAttributes[ValidMediaAttributeKeys.mediaTimeSpentKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.mediaTimeSpentKey] =
                 this.mediaTimeSpent();
-            customAttributes[ValidMediaAttributeKeys.contentTimeSpentKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.contentTimeSpentKey] =
                 this.mediaContentTimeSpent();
-            customAttributes[ValidMediaAttributeKeys.contentCompleteKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.contentCompleteKey] =
                 this.mediaContentComplete;
-            customAttributes[ValidMediaAttributeKeys.totalSegmentsKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.totalSegmentsKey] =
                 this.mediaSessionSegmentTotal;
-            customAttributes[ValidMediaAttributeKeys.totalAdTimeSpentKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.totalAdTimeSpentKey] =
                 this.mediaTotalAdTimeSpent;
-            customAttributes[ValidMediaAttributeKeys.adTimeSpentRateKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adTimeSpentRateKey] =
                 this.mediaAdTimeSpentRate();
-            customAttributes[ValidMediaAttributeKeys.totalAdsKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.totalAdsKey] =
                 this.mediaSessionAdTotal;
-            customAttributes[ValidMediaAttributeKeys.adIDsKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adIDsKey] =
                 this.mediaSessionAdObjects;
             var options = {
                 currentPlayheadPosition: this.currentPlayheadPosition,
                 customAttributes: customAttributes,
             };
-            var summaryEvent = this.createMediaEvent(MediaEventType.SessionSummary, options);
+            var summaryEvent = this.createMediaEvent(types_1.MediaEventType.SessionSummary, options);
             this.logEvent(summaryEvent);
             this.sessionSummarySent = true;
         }
@@ -1090,30 +656,30 @@ var MediaSession = /** @class */ (function () {
             }
             // tslint:disable-next-line: no-any
             var customAttributes = {};
-            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.mediaSessionIdKey] =
                 this.sessionId;
-            customAttributes[ValidMediaAttributeKeys.contentId] =
+            customAttributes[types_1.ValidMediaAttributeKeys.contentId] =
                 this.contentId;
-            customAttributes[ValidMediaAttributeKeys.segmentIndexKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentIndexKey] =
                 this.segment.index;
-            customAttributes[ValidMediaAttributeKeys.segmentTitleKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentTitleKey] =
                 this.segment.title;
-            customAttributes[ValidMediaAttributeKeys.segmentStartTimestampKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentStartTimestampKey] =
                 this.segment.segmentStartTimestamp;
-            customAttributes[ValidMediaAttributeKeys.segmentEndTimestampKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentEndTimestampKey] =
                 this.segment.segmentEndTimestamp;
-            customAttributes[ValidMediaAttributeKeys.segmentTimeSpentKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentTimeSpentKey] =
                 this.segment.segmentEndTimestamp -
                     this.segment.segmentStartTimestamp;
-            customAttributes[ValidMediaAttributeKeys.segmentSkippedKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentSkippedKey] =
                 this.segment.segmentSkipped;
-            customAttributes[ValidMediaAttributeKeys.segmentCompletedKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.segmentCompletedKey] =
                 this.segment.segmentCompleted;
             var options = {
                 currentPlayheadPosition: this.currentPlayheadPosition,
                 customAttributes: customAttributes,
             };
-            var summaryEvent = this.createMediaEvent(MediaEventType.SegmentSummary, options);
+            var summaryEvent = this.createMediaEvent(types_1.MediaEventType.SegmentSummary, options);
             this.logEvent(summaryEvent);
         }
         this.segment = undefined;
@@ -1130,31 +696,30 @@ var MediaSession = /** @class */ (function () {
             }
             // tslint:disable-next-line: no-any
             var customAttributes = {};
-            customAttributes[ValidMediaAttributeKeys.mediaSessionIdKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.mediaSessionIdKey] =
                 this.sessionId;
-            customAttributes[ValidMediaAttributeKeys.adBreakIdKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adBreakIdKey] =
                 (_a = this.adBreak) === null || _a === void 0 ? void 0 : _a.id;
-            customAttributes[ValidMediaAttributeKeys.adContentIdKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adContentIdKey] =
                 (_b = this.adContent) === null || _b === void 0 ? void 0 : _b.id;
-            customAttributes[ValidMediaAttributeKeys.adContentStartTimestampKey] = (_c = this.adContent) === null || _c === void 0 ? void 0 : _c.adStartTimestamp;
-            customAttributes[ValidMediaAttributeKeys.adContentEndTimestampKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adContentStartTimestampKey] = (_c = this.adContent) === null || _c === void 0 ? void 0 : _c.adStartTimestamp;
+            customAttributes[types_1.ValidMediaAttributeKeys.adContentEndTimestampKey] =
                 (_d = this.adContent) === null || _d === void 0 ? void 0 : _d.adEndTimestamp;
-            customAttributes[ValidMediaAttributeKeys.adContentTitleKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adContentTitleKey] =
                 (_e = this.adContent) === null || _e === void 0 ? void 0 : _e.title;
-            customAttributes[ValidMediaAttributeKeys.adContentSkippedKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adContentSkippedKey] =
                 (_f = this.adContent) === null || _f === void 0 ? void 0 : _f.adSkipped;
-            customAttributes[ValidMediaAttributeKeys.adContentCompletedKey] =
+            customAttributes[types_1.ValidMediaAttributeKeys.adContentCompletedKey] =
                 (_g = this.adContent) === null || _g === void 0 ? void 0 : _g.adCompleted;
             var options = {
                 currentPlayheadPosition: this.currentPlayheadPosition,
                 customAttributes: customAttributes,
             };
-            var summaryEvent = this.createMediaEvent(MediaEventType.AdSummary, options);
+            var summaryEvent = this.createMediaEvent(types_1.MediaEventType.AdSummary, options);
             this.logEvent(summaryEvent);
         }
         this.adContent = undefined;
     };
     return MediaSession;
 }());
-
-module.exports = MediaSession;
+exports.MediaSession = MediaSession;
