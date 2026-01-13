@@ -421,8 +421,7 @@ describe('MediaSession', () => {
             );
             expect(summaryArg, 'Expected a Session Summary event').to.exist;
             const summaryAttrs = summaryArg?.[0].options.customAttributes;
-            const mediaContentTimeSpent =
-                summaryAttrs.media_content_time_spent;
+            const mediaContentTimeSpent = summaryAttrs.media_content_time_spent;
             // Only pre-ad ~100ms should be counted as content time
             expect(mediaContentTimeSpent).to.greaterThanOrEqual(100);
             expect(mediaContentTimeSpent).to.lessThanOrEqual(220);
